@@ -35,8 +35,8 @@
     modal.innerHTML =
       '<button class="modal-close" aria-label="关闭">' + icon('eo-x') + '</button>' +
       '<div class="success">' + icon('eo-check-circle') +
-      '<h3>申请已收到</h3>' +
-      '<p>感谢你愿意成为 Earthory 的早期同行者。我们会尽快与你联系。</p>' +
+      '<h3>已收到</h3>' +
+      '<p>感谢你留下联系方式，我们会尽快与你联系。</p>' +
       '<button class="primary" type="button">完成</button>' +
       '</div>';
     modal.querySelector('.modal-close').addEventListener('click', close);
@@ -51,17 +51,17 @@
     backdrop.innerHTML =
       '<div class="modal" role="dialog" aria-modal="true">' +
         '<button class="modal-close" aria-label="关闭">' + icon('eo-x') + '</button>' +
-        '<span class="eyebrow">' + (opts.eyebrow || 'EARLY ACCESS') + '</span>' +
-        '<h3>' + (opts.title || '加入 Earthory 早期体验') + '</h3>' +
-        '<p>' + (opts.note || '告诉我们你最希望 Earthory 帮你记住什么。') + '</p>' +
+        '<span class="eyebrow">' + (opts.eyebrow || 'STAY IN TOUCH') + '</span>' +
+        '<h3>' + (opts.title || '留下联系方式') + '</h3>' +
+        '<p>' + (opts.note || '新版本、开放名额或工程样机可以体验时，我们会第一时间通知你。') + '</p>' +
         '<form>' +
-          '<label>姓名<input required placeholder="你的姓名"></label>' +
-          '<label>邮箱<input required type="email" placeholder="you@example.com"></label>' +
-          '<label>' + (opts.field || '我最希望找回') +
-            '<textarea required placeholder="' +
-            (opts.placeholder || '例如：家人的重要时刻、工作中的承诺、物品放在哪里……') +
+          '<label>称呼<input required placeholder="你的姓名"></label>' +
+          '<label>邮箱或手机<input required placeholder="邮箱或手机号"></label>' +
+          '<label>' + (opts.field || '你最希望找回什么（选填）') +
+            '<textarea placeholder="' +
+            (opts.placeholder || '例如：家人的重要时刻、工作中的约定、物品放在哪里……') +
             '"></textarea></label>' +
-          '<button class="primary" type="submit">提交申请</button>' +
+          '<button class="primary" type="submit">提交</button>' +
         '</form>' +
       '</div>';
 
@@ -100,7 +100,7 @@
 
   /* 顶部导航的 CTA 与页面内 CTA 共用同一个弹窗 */
   var cta = document.querySelector('.nav-cta');
-  if (cta && !cta.hasAttribute('data-join')) cta.setAttribute('data-join', '');
+  if (cta && cta.tagName !== 'A' && !cta.hasAttribute('data-join')) cta.setAttribute('data-join', '');
 
   /* ---------- 3. 岗位链接：补上邮件主题 ---------- */
   /* 直接写在 href 里会带来编码问题，改为运行时拼接；

@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Earthory 隐私与安全：数据边界、端侧处理、加密与密钥、删除与审计">
 <title>隐私与安全｜Earthory</title>
+<meta property="og:type" content="website"><meta property="og:title" content="隐私与安全｜Earthory"><meta property="og:description" content="Earthory 隐私与安全：数据边界、端侧处理、加密与密钥、删除与审计"><meta property="og:image" content="assets/earthory-og.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="assets/earthory-app-icon.png">
+<link rel="apple-touch-icon" href="assets/earthory-touch-icon.png">
 <link rel="stylesheet" href="earthory.css">
 <link rel="stylesheet" href="earthory-motion.css">
 <link rel="stylesheet" href="earthory-pages.css">
@@ -13,7 +17,7 @@
 <div class="site-shell">
 
 <header class="nav">
-  <a class="brand" href="index.html">Earthory</a>
+  <a class="brand" href="index.html"><img class="brand-mark" src="assets/earthory-mark.png" alt="">Earthory</a>
   <nav>
     <a href="hardware.html">Earthory One</a>
     <a href="app.html">Earthory App</a>
@@ -21,7 +25,7 @@
     <a href="privacy.html" aria-current="page">隐私与安全</a>
     <a href="careers.html">招聘</a>
   </nav>
-  <button class="nav-cta" data-join>加入早期体验</button>
+  <a class="nav-cta" href="download.html">下载</a>
 </header>
 
 <main class="subpage">
@@ -32,17 +36,17 @@
       <a class="back-link" href="index.html"><svg class="ic" viewBox="0 0 256 256"><use href="#eo-arrow-left"/></svg> 返回首页</a>
       <span class="eyebrow">PRIVACY &amp; SECURITY</span>
       <h1>你的记忆，<br>只属于<span>你</span>。</h1>
-      <p>一台会记住现实的设备，如果隐私是补上去的，那它一开始就不该被造出来。Earthory 的边界写在架构里：原始影像默认不出设备，密钥不在我们手上，删除是真的删除。</p>
+      <p>一台会记住现实的设备，如果隐私是事后补上的，那它一开始就不该被做出来。所以我们把边界写死：原始视频默认不出设备，解密密钥不在我们手上，删除就是真的删除。</p>
       <div class="hero-actions">
-        <button class="primary" data-join>加入早期体验</button>
-        <a class="secondary" href="#principles">六条不让步的原则 <svg class="ic" viewBox="0 0 256 256"><use href="#eo-arrow-right"/></svg></a>
+        <a class="primary" href="download.html">下载 App</a>
+        <a class="secondary" href="#principles">六条底线 <svg class="ic" viewBox="0 0 256 256"><use href="#eo-arrow-right"/></svg></a>
       </div>
     </div>
 
     <div class="zone-stage">
       <div class="zone zone-device">
         <h4><svg class="ic" viewBox="0 0 256 256"><use href="#eo-house"/></svg>你的设备</h4>
-        <small>感知与敏感判断都在这里完成</small>
+        <small>感知与识别都在这里完成</small>
         <div class="chips">
           <span>原始影像</span>
           <span>原始声音</span>
@@ -59,7 +63,7 @@
 
       <div class="zone zone-cloud">
         <h4><svg class="ic" viewBox="0 0 256 256"><use href="#eo-globe-hemisphere-west"/></svg>云端</h4>
-        <small>只收到你授权上行的那一部分</small>
+        <small>只收到你同意传上去的那一部分</small>
         <div class="chips out">
           <span>加密后的事件摘要</span>
           <span>你的检索索引</span>
@@ -76,54 +80,79 @@
     <span>Yours to delete.</span>
   </section>
 
+  <!-- ===== 三种感知模式（PPT：VISION / SENSE / SILENT） ===== -->
+  <section class="plain-section tinted">
+    <span class="eyebrow">VISION · SENSE · SILENT</span>
+    <h2>它有三种状态，<br>切换在你手上。</h2>
+    <p>不是「开着」和「关着」两档。大部分时间它待在中间那一档，只留下判断这一刻要不要记录所需要的东西。</p>
+    <div class="creed">
+      <article>
+        <b>VISION · 完整感知</b>
+        <h3>该记下来的<br>那几分钟。</h3>
+        <p>画面、声音与空间一起进入。用在你确实希望留住的时刻——孩子第一次骑出去、一场需要复盘的会议、一段想以后再看的路。</p>
+      </article>
+      <article>
+        <b>SENSE · 必要感知</b>
+        <h3>默认就停在<br>这一档。</h3>
+        <p>只保留判断「这一刻值不值得记录」所需要的最少信息。绝大部分平淡的时间在这一档里过去，不写入长期存储。</p>
+      </article>
+      <article>
+        <b>SILENT · 停止感知</b>
+        <h3>按下去，<br>就是什么都没有。</h3>
+        <p>一个实体动作，不采集、不缓存、不判断，也不需要任何软件确认。进入你设为敏感的空间时，它自己就会切到这一档。</p>
+      </article>
+    </div>
+    <p class="section-note">用户控制：物理开关 · 本地优先 · 可撤回 / 可删除</p>
+  </section>
+
   <!-- ===== 六条原则 ===== -->
   <section class="feature-intro section" id="principles">
     <div>
       <span class="eyebrow">NON-NEGOTIABLE</span>
-      <h2>六条<br>不让步的原则。</h2>
-      <p>它们不是隐私政策里的措辞，而是产品的验收标准。任何一条做不到，功能就不上线。</p>
+      <h2>六条<br>不让步的底线。</h2>
+      <p>这不是隐私政策里的措辞，而是我们自己的验收标准。有一条做不到，功能就不上线。长期数据产品必须先建立长期信任，顺序不能反。</p>
     </div>
     <div class="space-grid">
       <article class="hardware-feature">
         <i><svg class="ic" viewBox="0 0 256 256"><use href="#eo-house"/></svg></i>
         <div>
           <h3>本地优先</h3>
-          <p>人脸、语音与精确位置的识别在设备内完成。原始影像默认不出设备，也不会作为默认设置被上传。</p>
+          <p>人脸、语音与精确位置的识别在设备内完成。原始视频默认不出设备，也不会被设为默认上传。</p>
         </div>
       </article>
       <article class="hardware-feature">
         <i><svg class="ic" viewBox="0 0 256 256"><use href="#eo-key"/></svg></i>
         <div>
           <h3>密钥在你手里</h3>
-          <p>内容密钥由你的设备生成并保管。我们不持有可以解开你记忆的钥匙，因此也无法在你不知情时读取。</p>
+          <p>解密密钥由你的设备生成并保管，我们并不持有，因此无法读取你的内容。</p>
         </div>
       </article>
       <article class="hardware-feature">
         <i><svg class="ic" viewBox="0 0 256 256"><use href="#eo-pause"/></svg></i>
         <div>
           <h3>可见，且可停</h3>
-          <p>设备工作时有明确的物理指示，暂停是一个可以直接按到的动作，不需要进入任何菜单。</p>
+          <p>设备工作时有明确的指示灯，暂停按一下即可，不需要进入任何菜单。</p>
         </div>
       </article>
       <article class="hardware-feature">
         <i><svg class="ic" viewBox="0 0 256 256"><use href="#eo-trash"/></svg></i>
         <div>
           <h3>删除是真的删除</h3>
-          <p>删除会同时移除原始片段、派生结论与索引条目，并在备份中按周期彻底清除，而不是打一个隐藏标记。</p>
+          <p>删除会同时移除原始片段、由它推出的结论和索引条目，备份也会在一个周期内彻底清除，而不是打一个隐藏标记。</p>
         </div>
       </article>
       <article class="hardware-feature">
         <i><svg class="ic" viewBox="0 0 256 256"><use href="#eo-eye"/></svg></i>
         <div>
-          <h3>不参与训练</h3>
-          <p>你的记忆不会进入任何通用模型的训练集，也不会与其他人的数据合并。它只服务于你自己的世界模型。</p>
+          <h3>不训练，也不出售</h3>
+          <p>你的记忆不会进入任何模型的训练集，不会与他人的数据合并，更不会被卖给任何人。我们的收入来自帮你拥有和使用自己的数据，不是来自转手它。</p>
         </div>
       </article>
       <article class="hardware-feature">
         <i><svg class="ic" viewBox="0 0 256 256"><use href="#eo-fingerprint"/></svg></i>
         <div>
-          <h3>他人的边界</h3>
-          <p>他人可以要求在你的记录中被模糊或移除。这是设备的一项基本能力，不是附加服务。</p>
+          <h3>别人的边界</h3>
+          <p>他人可以要求在你的记录中被模糊或移除。这是设备自带的能力，不是额外付费的服务。</p>
         </div>
       </article>
     </div>
@@ -132,12 +161,12 @@
   <!-- ===== 数据去向 ===== -->
   <section class="plain-section tinted">
     <span class="eyebrow">WHERE THE DATA LIVES</span>
-    <h2>什么留下，什么上行。</h2>
-    <p>与其承诺「我们很重视隐私」，不如直接把边界画出来。下面这条线是产品的默认状态，你可以收紧它，但我们不会替你放宽。</p>
+    <h2>哪些留在本机，哪些会传上去。</h2>
+    <p>与其说一句「我们很重视隐私」，不如直接把边界画出来。下面是默认状态，你可以收得更紧，我们不会替你放宽。对接健康、出行、家庭或工作流的第三方时也是同一条线：它们拿到的只有你勾选的那一项能力，不是你的人生数据。</p>
     <div class="ledger">
       <article>
         <h3><svg class="ic" viewBox="0 0 256 256"><use href="#eo-house"/></svg>留在设备内</h3>
-        <p>这些内容默认永远不离开你的 Earthory One 与手机。</p>
+        <p>这些内容默认一直留在你的 Earthory One 和手机里。</p>
         <ul>
           <li><svg class="ic" viewBox="0 0 256 256"><use href="#eo-check-circle"/></svg>原始影像与原始音频</li>
           <li><svg class="ic" viewBox="0 0 256 256"><use href="#eo-check-circle"/></svg>人脸与声纹特征</li>
@@ -147,8 +176,8 @@
         </ul>
       </article>
       <article>
-        <h3><svg class="ic" viewBox="0 0 256 256"><use href="#eo-globe-hemisphere-west"/></svg>经你授权才上行</h3>
-        <p>用于跨设备同步与秒级检索，全部以你的密钥加密后传输与存放。</p>
+        <h3><svg class="ic" viewBox="0 0 256 256"><use href="#eo-globe-hemisphere-west"/></svg>经你同意才上传</h3>
+        <p>上传是为了多设备同步和更快的检索，全部先用你的密钥加密后再传输与存放。</p>
         <ul>
           <li><svg class="ic" viewBox="0 0 256 256"><use href="#eo-lock-key"/></svg>加密后的事件摘要（谁、在哪、做了什么）</li>
           <li><svg class="ic" viewBox="0 0 256 256"><use href="#eo-lock-key"/></svg>加密后的检索索引</li>
@@ -164,8 +193,8 @@
   <section class="photo-band band-people">
     <div>
       <span class="eyebrow">WHAT WE ARE PROTECTING</span>
-      <h2>我们要守住的，<br>是这样的一个下午。</h2>
-      <p>隐私听上去很抽象，落到具体就是：这段影像属于在场的这几个人，不属于任何一台服务器，也不属于我们。</p>
+      <h2>我们想守住的，<br>就是这样一个下午。</h2>
+      <p>隐私听起来抽象，说白了就是一件事：这段画面属于当时在场的那几个人，不属于服务器，也不属于我们。</p>
     </div>
   </section>
 
@@ -173,34 +202,34 @@
   <section class="feature-intro section">
     <div>
       <span class="eyebrow">DATA LIFECYCLE</span>
-      <h2>一段记忆<br>会经过什么。</h2>
-      <p>从被看见到被忘记，中间每一步都可以由你中断。这是同一条链路的另一种读法——从隐私的角度。</p>
+      <h2>一段记忆<br>会经历什么。</h2>
+      <p>从被看见到被忘记，每一步你都可以中断。这是前面那条流程，从隐私的角度再看一遍。</p>
     </div>
     <div class="timeline">
       <div>
         <time>第 0 秒</time>
         <h3>进入缓冲</h3>
-        <p>画面先进入设备内的短时缓冲区，不写入长期存储。你此刻按下暂停，它不会留下任何痕迹。</p>
+        <p>画面先进入设备内的临时缓冲区，不写入长期存储。此时按下暂停，不会留下任何痕迹。</p>
       </div>
       <div>
         <time>第 1 秒</time>
         <h3>端侧判断</h3>
-        <p>模型在本地决定这一刻是否值得保留。绝大多数平凡的时间在这一步被丢弃，而不是被上传后再筛。</p>
+        <p>模型在本机决定这一刻是否保留。大部分平淡的时间在这一步就被丢弃，而不是上传后再筛。</p>
       </div>
       <div>
         <time>数分钟内</time>
         <h3>加密与索引</h3>
-        <p>保留下来的部分在设备内加密，生成不含原文的事件摘要与索引，随后才可能上行。</p>
+        <p>保留下来的部分在设备内完成加密，生成不含原文的摘要与索引，之后才可能上传。</p>
       </div>
       <div>
         <time>随时</time>
         <h3>查看与撤回</h3>
-        <p>你可以在 App 里看到每一次访问记录，也可以把任意一天、一个地点或一个人的全部内容一次性撤回。</p>
+        <p>App 内可以看到每一次访问记录，也可以把某一天、某个地点或某个人的全部内容一次性撤回。</p>
       </div>
       <div>
         <time>到期</time>
         <h3>过期与彻底删除</h3>
-        <p>你设定的保留期到达后自动清除；手动删除会级联移除原始片段、派生结论与索引，并在备份周期内彻底消失。</p>
+        <p>到达你设定的保留期后自动清除；手动删除会一并移除原始片段、结论与索引，备份也在一个周期内彻底消失。</p>
       </div>
     </div>
   </section>
@@ -208,28 +237,28 @@
   <!-- ===== 安全工程 ===== -->
   <section class="app-capabilities">
     <span class="eyebrow">SECURITY ENGINEERING</span>
-    <h2>把边界写进工程里。</h2>
-    <p>原则需要有人守。下面是支撑这些承诺的具体做法。</p>
+    <h2>这些承诺如何落地。</h2>
+    <p>原则需要有人守。下面是具体做法。</p>
     <div class="cap-grid">
       <article>
         <span>Encryption</span>
         <h3>加密</h3>
-        <p>传输使用 TLS 1.3，存储使用 AES-256。内容密钥由设备生成，服务端只见密文。</p>
+        <p>传输使用 TLS 1.3，存储使用 AES-256。内容密钥在设备上生成，服务端只能看到密文。</p>
       </article>
       <article>
         <span>Keys</span>
         <h3>密钥</h3>
-        <p>密钥保存在设备安全芯片中，通过你的生物识别解锁；更换设备需要你亲自完成迁移。</p>
+        <p>密钥保存在设备的安全芯片中，通过你的指纹或人脸解锁。更换设备需要你亲自完成迁移。</p>
       </article>
       <article>
         <span>Audit</span>
         <h3>审计</h3>
-        <p>任何对你数据的访问都会写入不可篡改的日志，并在 App 内向你完整呈现。</p>
+        <p>任何一次读取你数据的操作都会写入不可篡改的日志，并在 App 内完整呈现。</p>
       </article>
       <article>
         <span>Response</span>
         <h3>响应</h3>
-        <p>接受独立第三方安全审计，设有漏洞披露渠道，重大问题会主动向受影响用户通报。</p>
+        <p>我们接受第三方安全审计，设有漏洞披露渠道，出现重大问题会主动通知受影响的用户。</p>
       </article>
     </div>
   </section>
@@ -237,12 +266,12 @@
   <!-- ===== 隐私中心 ===== -->
   <section class="privacy" id="controls">
     <span class="eyebrow">PRIVACY CENTER</span>
-    <h2>这些开关，一直在你手上。</h2>
+    <h2>停止、撤回、审计、遗忘，<br>四件事一直在你手上。</h2>
     <div class="privacy-grid">
       <article>
         <i><svg class="ic" viewBox="0 0 256 256"><use href="#eo-pause"/></svg></i>
-        <h3>物理暂停</h3>
-        <p>一个实体动作即刻停止感知，不经过任何软件确认。</p>
+        <h3>物理停止</h3>
+        <p>按一下即刻停止，不需要任何软件确认。</p>
       </article>
       <article>
         <i><svg class="ic" viewBox="0 0 256 256"><use href="#eo-map-pin"/></svg></i>
@@ -256,13 +285,13 @@
       </article>
       <article>
         <i><svg class="ic" viewBox="0 0 256 256"><use href="#eo-eye"/></svg></i>
-        <h3>访问日志</h3>
+        <h3>访问审计</h3>
         <p>谁、在什么时候、因为什么读取过，全部可查。</p>
       </article>
       <article>
         <i><svg class="ic" viewBox="0 0 256 256"><use href="#eo-trash"/></svg></i>
-        <h3>一键导出与销毁</h3>
-        <p>随时带走全部数据，或让它彻底消失。</p>
+        <h3>撤回与遗忘</h3>
+        <p>随时把数据整份带走，或者让它彻底消失。</p>
       </article>
     </div>
   </section>
@@ -270,31 +299,35 @@
   <!-- ===== FAQ ===== -->
   <section class="plain-section">
     <span class="eyebrow">QUESTIONS WE GET</span>
-    <h2>你大概会想问的。</h2>
+    <h2>你可能会问的几个问题。</h2>
     <div class="faq">
       <details open>
         <summary>Earthory 的员工能看到我的记忆吗？</summary>
-        <p>不能。内容密钥由你的设备生成并保管，服务端存放的是密文。即使有人拿到全部存储，也无法还原成画面或文字。技术支持流程中不存在「读取用户内容」这一步。</p>
+        <p>不能。密钥由你的设备生成并保管，服务端存放的是密文。即使有人拿到全部存储，也无法还原成画面或文字。技术支持流程中不存在「读取用户内容」这一步。</p>
       </details>
       <details>
         <summary>拍到了别人怎么办？</summary>
-        <p>设备在记录时有明确的物理指示，这是硬件设计的第一优先级。任何人都可以要求在你的记录中被模糊或移除，这是设备内置的能力。我们也建议在明显的私人场合主动暂停——产品把暂停做得足够容易，就是为了让这件事不需要犹豫。</p>
+        <p>设备记录时有明确的指示灯，这是硬件设计的第一优先级。任何人都可以要求在你的记录中被模糊或移除，这是设备自带的能力。私人场合我们也建议你主动暂停——暂停做得足够容易，就是为了让你不必犹豫。</p>
       </details>
       <details>
-        <summary>我的数据会被用来训练模型吗？</summary>
-        <p>不会。你的记忆不进入任何通用模型的训练集，也不与其他人的数据合并。个人世界模型只在你自己的账户内生长，这一点没有可选项，也不会通过更新条款改变。</p>
+        <summary>我的数据会被拿去训练模型或者卖掉吗？</summary>
+        <p>都不会。你的记忆不会进入任何模型的训练集，不会与他人的数据合并，也不会被出售。你的记忆库只在你自己的账户内生长，这一点没有可选项，也不会通过修改条款改变。我们靠硬件和订阅赚钱，不靠转手你的数据。</p>
       </details>
       <details>
         <summary>如果我不再使用 Earthory，数据怎么办？</summary>
-        <p>你可以一次性导出全部内容为开放格式，然后销毁账户。销毁会级联删除云端所有密文与索引，并在一个备份周期内从冷备份中彻底清除。设备本地的数据由你自行擦除，我们不保留任何可恢复副本。</p>
+        <p>你可以把全部内容导出为通用格式，然后注销账户。注销会一并删除云端的密文与索引，冷备份也会在一个备份周期内彻底清除。设备本地的数据由你自行擦除，我们不保留任何可恢复的副本。</p>
+      </details>
+      <details>
+        <summary>接入健康 App、车机这些第三方，它们能看到多少？</summary>
+        <p>只有你勾选的那一项能力，而且是最小权限。比如你授权健康类应用读取运动时长，它拿到的就只是运动时长，不是那段时间的画面、位置或对话。授权可以随时撤回，撤回之后对方立刻失去访问权，历史访问记录仍然留在你的审计日志里。</p>
       </details>
       <details>
         <summary>断网还能用吗？</summary>
-        <p>可以。感知、端侧判断与本地检索都不依赖网络。云端负责的是跨设备同步与更大规模的检索加速——离线时功能会变慢，但不会停。</p>
+        <p>可以。感知、判断与本地检索都不依赖网络。云端负责的是多设备同步与更快的检索，断网时会慢一些，但不会停。</p>
       </details>
       <details>
         <summary>你们会配合执法调阅吗？</summary>
-        <p>我们会在法律要求的范围内配合，但我们能提供的只有账户元数据，因为我们不持有解密内容的密钥。我们会定期发布透明度报告，说明收到的请求数量与处理方式；在法律允许时，我们会通知受影响的用户。</p>
+        <p>我们会在法律要求的范围内配合，但能提供的只有账户信息，因为解密密钥不在我们手上。我们会定期发布透明度报告，说明收到的请求数量与处理方式；在法律允许时，会通知受影响的用户。</p>
       </details>
     </div>
   </section>
@@ -310,20 +343,21 @@
       <img class="orb-flow flow-a" src="assets/earthory-orb.png" alt="">
       <img class="orb-flow flow-b" src="assets/earthory-orb.png" alt="">
     </div>
-    <h2>与 Earthory 一起，<br>更好地理解和记住你的生活。</h2>
-    <button class="primary" data-join>加入早期体验</button>
+    <h2>想体验的话，<br>留下联系方式。</h2>
+    <button class="primary" data-join data-title="留下联系方式" data-note="新版本、开放名额或工程样机可以体验时，我们会第一时间通知你。" data-field="你最希望找回什么（选填）" data-placeholder="例如：家人的重要时刻、工作中的约定、物品放在哪里……">留下联系方式</button>
   </section>
 
 </main>
 
 <footer>
-  <a class="brand" href="index.html">Earthory</a>
+  <a class="brand" href="index.html"><img class="brand-mark" src="assets/earthory-mark.png" alt="">Earthory</a>
   <span>© 2026 Earthory</span>
   <div>
     <a href="hardware.html">Earthory One</a>
     <a href="app.html">Earthory App</a>
     <a href="how.html">工作方式</a>
     <a href="privacy.html">隐私与安全</a>
+    <a href="download.html">下载</a>
     <a href="careers.html">招聘</a>
     <a href="mailto:hello@earthory.ai">联系我们</a>
   </div>

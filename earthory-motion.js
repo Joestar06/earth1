@@ -404,13 +404,13 @@
      index / hardware / app 三页的导航由 earthory.js 渲染，无法直接改源码，
      因此在这里把「工作方式 / 隐私与安全」指向新页面，并补上「招聘」入口。
      ========================================================== */
-  var PAGES = /^(index|hardware|app|how|privacy|careers)\.html/;
+  var PAGES = /^(index|hardware|app|how|privacy|careers|download)\.html/;
   var onIndex = !/\/(hardware|app)\.html$/.test(location.pathname);
 
   /* 首页锚点 → 独立页面 */
   var ANCHOR_MAP = { '/#how': 'how.html', '/#privacy': 'privacy.html' };
   var NAV_EXTRA = [['careers.html', '招聘']];
-  var FOOT_EXTRA = [['how.html', '工作方式'], ['privacy.html', '隐私与安全'], ['careers.html', '招聘']];
+  var FOOT_EXTRA = [['how.html', '工作方式'], ['privacy.html', '隐私与安全'], ['download.html', '下载'], ['careers.html', '招聘']];
 
   function addLink(host, href, text, before) {
     if (host.querySelector('a[href="' + href + '"]')) return;
@@ -432,6 +432,30 @@
 
     var nav = document.querySelector('.nav nav');
     if (nav) NAV_EXTRA.forEach(function (l) { addLink(nav, l[0], l[1]); });
+
+    /* 首页 / App 页首屏的主按钮改成「下载 App」，点了直接去下载页 */
+    each('.hero .hero-actions .primary, .app-hero .hero-actions .primary', document, function (b) {
+      if (b.tagName === 'A') return;
+      b.setAttribute('data-eo-dl', '');
+      b.removeAttribute('data-join');
+      if (b.textContent.trim() !== '下载 App') b.textContent = '下载 App';
+    });
+
+    /* 顶部按钮：首页 / 硬件页 / App 页的「加入早期体验」改成直接去下载页 */
+    each('.nav-cta', document, function (b) {
+      if (b.textContent.trim() !== '下载') b.textContent = '下载';
+      b.removeAttribute('data-join');
+    });
+
+    /* 品牌标识：在「Earthory」文字前补上图标（首页 / 硬件页 / App 页由 earthory.js 渲染） */
+    each('.brand', document, function (b) {
+      if (b.querySelector('.brand-mark')) return;
+      var m = document.createElement('img');
+      m.className = 'brand-mark';
+      m.src = 'assets/earthory-mark.png';
+      m.alt = '';
+      b.insertBefore(m, b.firstChild);
+    });
 
     var foot = document.querySelector('footer div');
     if (foot) {
@@ -470,6 +494,88 @@
     }, true);
   }
 
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('.nav-cta, [data-eo-dl]') : null;
+    if (!b || b.tagName === 'A') return;
+    e.preventDefault();
+    e.stopPropagation();
+    location.href = 'download.html';
+  }, true);
+
+  /* ==========================================================
+     8.5 首页「三种日常」场景板块
+
+     首页由 earthory.js 渲染，改不了源码，所以这一段在运行时插进去；
+     React 若重新渲染把它冲掉，下一次 scan 会自动补回来。
+     要改文案或换图，直接改下面的 SCENES。
+     ========================================================== */
+  var SCENE_SETS = {
+    /* 首页：它帮你记住什么 */
+    index: {
+      eyebrow: 'IN EVERYDAY LIFE',
+      title: '它记住的，都是这些时刻。',
+      note: '不是那些宏大的人生节点，而是每天都在发生、过后又想不起来的具体片刻。',
+      items: [
+        ['scene-dog', 'assets/scene-dog.jpg', '一位男士蹲下迎接跑向他的狗',
+         '它今天吃过了吗',
+         '散步、喂食、上一次体检是哪天。每天都在发生的小事，攒成一条完整的记录。'],
+        ['scene-meeting', 'assets/scene-meeting.jpg', '四个人围坐在会议桌旁讨论',
+         '上周答应过什么',
+         '会议里说过的话有据可查，不必再翻聊天记录，也不必凭印象争论。'],
+        ['scene-reunion', 'assets/scene-reunion.jpg', '一对伴侣在客厅回看他们相遇那天的记忆',
+         '我们是怎么认识的',
+         '那天的书店、那场雨，还有你从架上抽走的那本书，都还在原地等着。']
+      ]
+    },
+    /* 硬件页：这颗设备平时待在哪 */
+    hardware: {
+      eyebrow: 'WHERE IT LIVES',
+      title: '一颗设备，放在哪儿都在工作。',
+      note: 'Earthory One 不需要你为它腾出位置。它待在你本来就会经过的地方，剩下的事自己完成。',
+      items: [
+        ['scene-dog', 'assets/scene-dog.jpg', '玄关柜上的 Earthory One 与迎上来的狗',
+         '玄关的柜子上',
+         '门口这一颗记着谁进出、狗什么时候被喂过、钥匙最后放在哪。'],
+        ['scene-meeting', 'assets/scene-meeting.jpg', '会议桌上的 Earthory One',
+         '会议室的桌上',
+         '一次会开完，谁答应了什么、下一步交给谁，事后都查得到。'],
+        ['scene-training', 'assets/scene-training.jpg', '跑道边的 Earthory One 正在回放这段时间的训练',
+         '跑道边的地上',
+         '一趟训练下来，配速、动作和状态都留着，回家复盘不用靠回忆。']
+      ]
+    }
+  };
+
+  var SCENE_SET = (function () {
+    var f = (location.pathname.split('/').pop() || '').toLowerCase();
+    if (f === '' || f === 'index.html') return SCENE_SETS.index;
+    if (f === 'hardware.html') return SCENE_SETS.hardware;
+    return null;
+  })();
+
+  function scenes() {
+    if (!SCENE_SET || document.getElementById('eo-scenes')) return;
+    var host = document.querySelector('.privacy') || document.querySelector('.final-cta');
+    if (!host || !host.parentNode) return;
+
+    var sec = document.createElement('section');
+    sec.id = 'eo-scenes';
+    sec.className = 'plain-section';
+    sec.innerHTML =
+      '<span class="eyebrow">' + SCENE_SET.eyebrow + '</span>' +
+      '<h2>' + SCENE_SET.title + '</h2>' +
+      '<p>' + SCENE_SET.note + '</p>' +
+      '<div class="scene-trio">' +
+      SCENE_SET.items.map(function (s) {
+        return '<figure class="' + s[0] + '">' +
+          '<div class="shot"><img src="' + s[1] + '" alt="' + s[2] + '" loading="lazy"></div>' +
+          '<figcaption><b>' + s[3] + '</b><span>' + s[4] + '</span></figcaption>' +
+          '</figure>';
+      }).join('') +
+      '</div>';
+    host.parentNode.insertBefore(sec, host);
+  }
+
   /* ==========================================================
      9. 扫描 / 重扫（React 重渲染后自愈）
      ========================================================== */
@@ -479,6 +585,7 @@
     scanning = true;
     try {
       fixLinks();
+      scenes();
       each('.hero, .subhero', document, atmosphere);
       each('.hero-orb, .device-stage, .system-orb, .people-stage, .photo-band, .phone-showcase, .phone-frame, .hub-card', document, hud);
       each('.world-map', document, function (m) { if (!m.dataset.eoNet) constellation(m); });

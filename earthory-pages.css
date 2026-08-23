@@ -318,3 +318,131 @@
   .role{padding:20px 10px}
   .role:hover{padding-left:14px;padding-right:14px}
 }
+
+/* ============================================================
+   精简版首屏（招聘页 / 下载页）
+   ============================================================ */
+.slim-hero{min-height:auto;grid-template-columns:1fr;padding:148px max(7vw,32px) 62px}
+.slim-hero > div:first-child{max-width:1120px;width:100%;margin:0 auto}
+.slim-hero .back-link{margin-bottom:34px}
+.slim-hero h1{font-size:clamp(46px,4.6vw,66px)}
+.slim-hero p{margin-bottom:30px}
+.plain-section.tight{padding-top:26px}
+
+/* ============================================================
+   下载页
+   ============================================================ */
+.dl-hero{background:linear-gradient(118deg,#fff,#f7fbf9 52%,#e9f3ee)}
+.dl-actions{display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+.dl-btn{display:inline-flex;align-items:center;gap:11px;font-size:16px;padding:16px 30px}
+.dl-btn svg{width:20px;height:20px;flex:0 0 auto}
+.dl-meta{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:22px;color:var(--muted);font-size:13px}
+.dl-meta span{display:flex;align-items:center;gap:7px}
+.dl-meta b{color:var(--ink);font-weight:600}
+.dl-cards{max-width:1120px;margin:auto;display:grid;grid-template-columns:1.15fr .85fr;gap:16px}
+.dl-card{border:1px solid var(--line);border-radius:24px;background:#fff;padding:30px;box-shadow:0 16px 45px #31584a0d}
+.dl-card h3{font:500 24px var(--serif);margin:0 0 10px}
+.dl-card > p{color:var(--muted);line-height:1.75;font-size:14px;margin:0}
+.dl-steps{margin:22px 0 0;padding:0;list-style:none;display:grid;gap:14px}
+.dl-steps li{display:grid;grid-template-columns:26px 1fr;gap:14px;align-items:start;color:#4c5854;font-size:14px;line-height:1.7}
+.dl-steps i{width:26px;height:26px;border-radius:50%;background:var(--pearl);color:var(--sage);display:grid;place-items:center;font:600 12px var(--sans);font-style:normal}
+.dl-app{display:grid;place-items:center;align-content:center;text-align:center;gap:6px}
+.dl-app img{width:112px;height:112px;border-radius:26px;box-shadow:0 14px 34px #1f4a3c26;margin-bottom:14px}
+.dl-app h3{margin:0}
+.dl-app > p{margin:0;color:var(--muted);font-size:14px}
+.dl-app .dl-ios{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);font-size:13px;line-height:1.75;width:100%}
+.dl-app .dl-ios a{color:var(--sage);font-weight:600}
+.dl-hash{margin-top:18px;font-size:12px;color:#7d8a85;word-break:break-all;background:var(--ivory);border-radius:12px;padding:12px 14px;line-height:1.7}
+@media(max-width:900px){
+  .slim-hero{padding-top:112px}
+  .dl-cards{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .slim-hero{padding:100px 20px 46px}
+  .dl-btn{width:100%;justify-content:center}
+  .dl-card{padding:24px}
+}
+
+/* ============================================================
+   品牌标识
+   ============================================================ */
+.brand{display:inline-flex;align-items:center;gap:11px}
+.brand-mark{height:30px;width:auto;display:block;flex:0 0 auto}
+footer .brand-mark{height:24px}
+@media(max-width:560px){.brand-mark{height:24px}footer .brand-mark{height:20px}}
+
+/* 页尾 CTA 里的一段说明 */
+.final-cta p{max-width:540px;margin:0 auto 26px;color:var(--muted);line-height:1.85;font-size:15px}
+
+/* ============================================================
+   三种日常：使用场景图
+   ============================================================ */
+.scene-trio{max-width:1180px;margin:52px auto 0;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.scene-trio figure{margin:0}
+.scene-trio .shot{overflow:hidden;border-radius:20px;background:var(--pearl)}
+.scene-trio img{
+  display:block;width:100%;height:288px;object-fit:cover;
+  transition:transform 1.1s cubic-bezier(.22,1,.36,1)
+}
+.scene-trio figure:hover img{transform:scale(1.045)}
+.scene-trio figcaption{padding:18px 2px 0}
+.scene-trio b{display:block;font:500 21px var(--serif);margin-bottom:8px}
+.scene-trio span{display:block;color:var(--muted);font-size:14px;line-height:1.75}
+.scene-dog img{object-position:58% 52%}
+.scene-meeting img{object-position:50% 42%}
+.scene-reunion img{object-position:42% 50%}
+@media(max-width:900px){
+  .scene-trio{grid-template-columns:1fr;gap:26px;margin-top:36px}
+  .scene-trio img{height:260px;object-position:center}
+}
+
+/* ============================================================
+   App 页的两张手机图
+   原图是带白底的设计稿截图，两张摆在一起几乎看不出区别。
+   现在图片已裁到手机本体（透明底），并让第二张只露出上半屏、
+   底部渐隐，做成局部特写，和首屏那张整机图区分开。
+   ============================================================ */
+.phone-showcase img{height:640px;filter:drop-shadow(0 26px 42px rgba(24,51,41,.22))}
+.phone-frame{height:560px;align-items:end;overflow:hidden}
+.phone-frame img{
+  width:328px;height:520px;object-fit:cover;object-position:center top;
+  -webkit-mask-image:linear-gradient(#000 74%,transparent);
+  mask-image:linear-gradient(#000 74%,transparent);
+  filter:drop-shadow(0 22px 34px rgba(35,67,55,.16))
+}
+@media(max-width:900px){
+  .phone-showcase{height:440px}
+  .phone-showcase img{height:520px}
+  .phone-frame{height:460px}
+  .phone-frame img{width:280px;height:440px}
+}
+@media(max-width:560px){
+  .phone-showcase{height:390px}
+  .phone-showcase img{height:460px}
+  .phone-frame{height:400px}
+  .phone-frame img{width:245px;height:385px}
+}
+.scene-training img{object-position:56% 48%}
+
+/* 板块末尾那句收束的话 */
+.section-note{
+  max-width:900px;margin:46px auto 0;padding-top:26px;
+  border-top:1px solid var(--line);text-align:center;
+  color:var(--ink);font:500 18px/1.7 var(--serif)
+}
+@media(max-width:560px){.section-note{font-size:16px;margin-top:34px}}
+
+/* 数据价值五层 + 公式条 */
+.cap-grid.five{grid-template-columns:repeat(5,1fr)}
+.cap-grid.five h3{font-size:22px}
+.app-capabilities .formula{
+  display:inline-block;margin:0 auto 18px;padding:13px 24px;
+  border:1px solid #3b4b45;border-radius:999px;background:#1d2a26;
+  color:#cfe6db;font-size:14px;letter-spacing:.02em
+}
+@media(max-width:1100px){.cap-grid.five{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:900px){.cap-grid.five{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){
+  .cap-grid.five{grid-template-columns:1fr}
+  .app-capabilities .formula{font-size:12px;padding:11px 16px}
+}

@@ -1,0 +1,274 @@
+Earthory 静态官网
+
+直接双击 index.html 即可打开首页，不需要安装任何软件，也不需要运行本地服务器。
+
+────────────────────────────────
+页面
+────────────────────────────────
+- index.html     首页
+- hardware.html  Earthory One 硬件页
+- app.html       Earthory App 产品页
+- how.html       工作方式          （新增）
+- privacy.html   隐私与安全        （新增）
+- careers.html   招聘              （已精简为只剩岗位列表）
+- download.html  下载 App          （新增，APK 体验包入口）
+
+前三页由 earthory.js 渲染，后四页是手写的静态 HTML，
+两者共用同一套样式与动效，外观完全一致。
+
+────────────────────────────────
+资源文件
+────────────────────────────────
+- earthory.css / earthory.js            原有页面样式与程序
+- earthory-motion.css / .js             动效层，全部 6 个页面共用
+- earthory-pages.css                    新组件样式，全部 6 个页面共用
+- earthory-pages.js                     新增三页的图标与弹窗
+- earthory-content.js                   首页 / App 页的证据卡文案
+- assets/                               图片素材
+
+请保持以上所有文件与 assets 文件夹处于同一目录层级。
+
+────────────────────────────────
+关于动效层
+────────────────────────────────
+动效层不修改 earthory.css 与 earthory.js，包含：
+
+· 页面进场遮罩与页面间切换淡入淡出
+· 滚动进场：文字、卡片、图片按层次依次浮现
+· 顶部滚动进度条；向下滚动隐藏、向上滚动回来的吸顶导航
+· 首屏氛围层：呼吸光晕、缓慢漂移的网格、掠过的光带、悬浮微粒
+· 影像取景框 HUD：四角框线、循环扫描线、背景视差
+· 「个人世界模型」：中心球到五个维度的连线绘制、流动光点、同心环旋转
+· 三段式原理条：数据在各环节之间流动
+· 深色区块：点阵网格与呼吸辉光
+· 卡片跟随鼠标的光斑、轻微 3D 倾斜、抬起投影
+· 按钮磁吸跟随与高光扫过
+· 时间轴随滚动逐段点亮
+
+如需完全关闭动效，在 6 个 HTML 文件中各删掉两行：
+  <link rel="stylesheet" href="earthory-motion.css">
+  <script src="earthory-motion.js"></script>
+（新增三页还需保留 earthory-pages.js，图标依赖它。）
+
+系统开启「减弱动态效果」（Windows 与 macOS 的无障碍设置）时，
+动效会自动降级为无动画的静态版本。
+
+────────────────────────────────
+调整动画快慢
+────────────────────────────────
+两个地方，改完刷新即可，不需要重新构建：
+
+1) 元素之间的先后节奏
+   earthory-motion.js 第 20 行：  var SPEED = 0.5;
+   调小更快（0.3 几乎同时出现），调大更慢（1.0 是最初的节奏）。
+
+2) 单个元素的动画时长
+   earthory-motion.css 顶部：
+     --eo-d:.58s;        普通淡入上移
+     --eo-d-mask:.78s;   标题的遮罩擦除
+
+滚动触发点在 earthory-motion.js 的 IntersectionObserver 里，
+rootMargin 的第三个值（现为 90px）表示元素还差多少进入视口就开始播放，
+调大 = 更早开始。
+
+────────────────────────────────
+导航为什么由脚本补齐
+────────────────────────────────
+index / hardware / app 三页的导航栏和页脚由已压缩的 earthory.js 渲染，
+无法直接改源码。因此 earthory-motion.js 会在运行时：
+  · 把「工作方式 / 隐私与安全」从首页锚点改指向 how.html / privacy.html
+  · 补上「招聘」入口
+  · 高亮当前所在页面
+新增的三页则直接写在 HTML 里，两边最终一致。
+
+────────────────────────────────
+证据卡文案在哪改
+────────────────────────────────
+三张证据卡现在各讲一个不同的故事：
+
+  首页      钥匙在哪里      → earthory-content.js 里的 CARDS
+  App 页   狗狗喂过了吗    → earthory-content.js 里的 CARDS
+  工作方式  谁教妹妹骑车    → 直接改 how.html
+
+前两页的卡片由已压缩的 earthory.js 渲染，而且两处用的是同一个组件，
+改不了源码，所以改成在运行时按页面替换文案。
+这两张卡的证据区用的是「轨迹」样式（时间 + 地点 + 标签），
+因为找钥匙、确认喂狗这类问题的证据本来就不是照片。
+
+────────────────────────────────
+需要你替换的内容
+────────────────────────────────
+- careers.html 里的 5 个岗位、地点与描述均为示例，请按实际情况修改。
+- APK 已放好：downloads/earthory-latest.apk（固定文件名，换版本直接覆盖）。
+  换包后同步修改 download.html 首屏的版本号 / 体积 / 更新日期 / 最低系统版本，
+  以及安装说明卡片里的 SHA-256 校验值。
+- 投递邮箱为 jobs@earthory.ai，联系邮箱为 hello@earthory.ai。
+- privacy.html 中的加密算法、审计与第三方说明为产品设想，
+  正式对外发布前请与法务和安全团队核对。
+
+────────────────────────────────
+顺带修复
+────────────────────────────────
+1. earthory.css 中背景图路径原为 ../assets/，指向了站点目录之外，
+   导致首屏设备图、头盔概念图等背景图无法显示，已修正为 assets/。
+2. .subhero 原本没有定位上下文，导致首屏氛围层脱出首屏铺满整页，
+   已在动效层中补上 position:relative。
+
+────────────────────────────────
+下载入口放在哪
+────────────────────────────────
+APK 的入口一共三处，都指向 download.html：
+
+1. 右上角那颗胶囊按钮。原来是「加入早期体验」，现在是「下载」，
+   点了直接跳 download.html。静态页写在 HTML 里；
+   首页 / 硬件页 / App 页的按钮由 earthory.js 渲染，
+   改文字和拦截点击都在 earthory-motion.js 里做。
+2. 首屏的主按钮，现在是「下载 App」。
+3. 页脚链接。
+
+导航栏里原本还有一个「下载」文字链接，和右上角的按钮重复，已经删掉。
+
+「留下联系方式」被挪到了每个页面的最底下（弹窗表单，
+文案可以用按钮上的 data-title / data-note / data-field / data-placeholder 单独定制）。
+表单目前只是前端演示，提交后弹一句「收到了」，没有后端。
+要真收到用户的联系方式，得把 earthory-pages.js 里
+form 的 submit 事件改成发到你自己的接口。
+
+download.html 首屏正中就是「下载 APK」大按钮，
+下面是版本信息、三步安装说明、SHA-256 校验值，
+右侧一张 App 图标卡片，最底下是留联系方式的板块。
+
+如果不想要首屏那个次级按钮，删掉 earthory-motion.js 里
+fixLinks() 中「首页 / App 页首屏补一个 APK 下载入口」那一段即可。
+
+────────────────────────────────
+关于本次精简
+────────────────────────────────
+招聘页只保留了首屏标题与岗位列表，
+移除的板块：原理条、我们在做什么、我们相信、我们为谁工作、
+我们提供、招聘流程、页尾大 CTA。
+岗位从 10 个减到 5 个（算法 / 检索 / 嵌入式 / 移动端 / 设计）。
+这些板块的样式仍保留在 earthory-pages.css 里，
+以后想加回来，直接从 git 历史里把对应 <section> 复制回去即可。
+
+────────────────────────────────
+Logo 与图标
+────────────────────────────────
+从三张原图生成了以下素材（都在 assets/，favicon.ico 在根目录）：
+
+- earthory-mark.png            透明底的图标，用在导航栏和页脚的「Earthory」文字前
+- earthory-logo.png            透明底的完整横版 logo（图标 + 文字 + 英文标语）
+- earthory-app-icon.png        512×512 青底 App 图标，用于下载页卡片与浏览器图标
+- earthory-touch-icon.png      180×180，iOS 添加到主屏幕时的图标
+- earthory-app-icon-light.png  512×512 白底圆角版，备用（当前页面未使用）
+- earthory-og.png              1200×630 分享预览图（微信 / Twitter 等）
+- favicon.ico                  多尺寸浏览器标签页图标
+
+静态四页的 logo 直接写在 HTML 的 .brand 里；
+首页 / 硬件页 / App 页的导航由 earthory.js 渲染，
+由 earthory-motion.js 在 fixLinks() 里往 .brand 前面插入图标。
+
+图标大小改这里：earthory-pages.css 末尾的 .brand-mark{height:30px}。
+
+────────────────────────────────
+APK 放在哪
+────────────────────────────────
+    earthory-static-website/downloads/earthory-latest.apk
+
+已经放好了（当前是 Earthory-v0.2.6-interaction-fix-debug.apk）。
+换版本直接覆盖这个同名文件，页面链接不用改，
+但要顺手改 download.html 里的四项信息和 SHA-256。
+
+Windows 上算 SHA-256：
+    certutil -hashfile downloads\earthory-latest.apk SHA256
+
+上线时 downloads 文件夹要一起传到服务器。
+用 Nginx 的话，确认 .apk 的 MIME 类型是
+application/vnd.android.package-archive，否则有的浏览器会当文本打开。
+
+────────────────────────────────
+文案已整体重写
+────────────────────────────────
+全站文案过了两遍：先改成白话，再把语气收正式，
+现在的基调是平实、简洁、不绕弯子，但不口语化。改动分布在：
+
+- earthory.js       首页 / 硬件页 / App 页的文案（直接改了里面的中文字符串）
+- earthory-pages.js 留联系方式弹窗的文案
+- how.html / privacy.html / careers.html / download.html  手写页面的正文
+
+earthory.js 是压缩过的文件，改的只是里面的中文字符串，没动代码结构。
+想找回原文：git diff earthory.js，或者 git checkout earthory.js。
+
+────────────────────────────────
+场景图板块（首页 + Earthory One 页）
+────────────────────────────────
+同样三张图，出现在两个页面，说的是两件事：
+
+  首页            「它记住的，都是这些时刻。」  讲它帮你记住什么
+  hardware.html   「一颗设备，放在哪儿都在工作。」讲这颗设备平时待在哪
+
+位置都在隐私区之前。两页各三张图，其中前两张共用：
+
+  assets/scene-dog.jpg       两页共用   小狗每天
+  assets/scene-meeting.jpg   两页共用   会议里说过的话
+  assets/scene-reunion.jpg   只在首页   回忆相遇那天
+  assets/scene-training.jpg  只在硬件页 跑道边复盘训练
+
+首页由压缩过的 earthory.js 渲染，这个板块改不进源码，
+所以写在 earthory-motion.js 的 scenes() 里，运行时插进页面，
+React 若重新渲染把它冲掉，下一次 scan 会自动补回来。
+
+要换图或改文案：earthory-motion.js 里的 SCENE_SETS，
+index 和 hardware 各一组，items 里一行是
+[CSS 类名, 图片路径, alt 文字, 标题, 说明]。
+想让别的页面也出现，在 SCENE_SETS 里加一组、
+并在下面 SCENE_SET 的判断里加上那个文件名即可。
+图片裁切位置：earthory-pages.css 末尾的
+  .scene-dog img / .scene-meeting img / .scene-reunion img
+的 object-position，第一个值是横向取景位置（0% 最左，100% 最右）。
+卡片高度是 .scene-trio img 的 height:288px。
+
+想把这个板块挪到别的页面：把 scenes() 里那段 HTML 直接抄进
+how.html / download.html 的任意位置即可，样式是全站共用的。
+
+────────────────────────────────
+App 页那两张手机图
+────────────────────────────────
+原来 assets/app-home.png 与 app-world.png 是带白底的设计稿截图，
+手机只占画面中间一小块，右上角还留着设计工具的「iPhone ⌄」标签，
+两张摆在一页上几乎看不出区别。现在：
+
+- 图片已裁到手机本体，白底改成透明，并放大到 2 倍（634×1248），
+  投影效果因此贴着机身，不再是一个白方块的影子。
+- 首屏那张仍是整机；第二张（「从一个球，展开五个方向」）改成只露上半屏、
+  底部渐隐的局部特写，正好对应旁边讲的球体与五个维度。
+  尺寸在 earthory-pages.css 末尾的 .phone-showcase img / .phone-frame img。
+
+想换回原图：git checkout assets/app-home.png assets/app-world.png
+
+────────────────────────────────
+工作方式 / 隐私与安全：已按融资 PPT 重写
+────────────────────────────────
+两页的骨架现在跟《Earthory 神识AI系统 融资计划书 V5》对得上，
+讲给投资人和讲给用户的是同一套东西。对应关系：
+
+how.html（工作方式）
+  首屏四段        PPT p1   现实发生 → 形成记忆 → 长期理解 → 帮助成长
+  四层结构        PPT p8/p10  One 现实感知 → Hub 本地处理 → Memory OS 长期理解 → 用户价值
+  三层核心价值    PPT p11  PROTECT 保护现在 / RECALL 找回过去 / REMEMBER 记住一生
+  答案的八项      PPT p15  时间、地点、人物物体、上下文、证据来源、授权边界、置信度、不确定说明
+  五个入口        PPT p31  Personal ST-VDB：时间 空间 实体 关系 来源 权限
+  数据五层        PPT p14  证据层 / 事件层 / 变化层 / 结果层 / 能力层 + 数据价值公式
+  价值曲线        PPT p13/p21  发生当下 → 数小时后 → 数周到数月 → 第五年 → 第十年以后
+
+privacy.html（隐私与安全）
+  三种感知模式    PPT p12  VISION 完整感知 / SENSE 必要感知 / SILENT 停止感知（新增，原来站上没有）
+  六条底线        PPT p12/p28  其中「不参与训练」扩成「不训练，也不出售」
+  数据去向        PPT p9   补上生态只在最小权限下连接、不交出完整人生数据
+  隐私中心        PPT p33  停止 · 撤回 · 审计 · 遗忘
+  常见问题        新增一条：接入第三方能看到多少
+
+新增的样式（earthory-pages.css 末尾）：
+  .section-note      板块末尾那句收束的话
+  .cap-grid.five     深色区五列卡片
+  .formula           数据价值公式的胶囊条
