@@ -98,17 +98,13 @@ index / hardware / app 三页的导航栏和页脚由已压缩的 earthory.js �
 ────────────────────────────────
 需要你替换的内容
 ────────────────────────────────
-- careers.html 里的 11 个岗位均为示例，请按实际在招的情况删改。
-  地点已统一为「新加坡」，写在每张卡片的第一个 .meta 里。
-  投递链接目前是 mailto:jobs@earthory.ai，主题由 earthory-pages.js
-  按 data-role 自动拼成「应聘：岗位名」。
-  注意：mailto 在没配邮件客户端的手机上点了没反应，投递量起来之后
-  建议换成 ATS（Ashby / Greenhouse / Lever），把 11 个 href 换成
-  各自的 JD 链接即可，卡片结构不用动。
+- careers.html（加入我们）已整页重建，结构见下面「加入我们这一页」。
+  42 个岗位与十条合作通道的内容均为示例，公开前请按实际情况删改。
+
 - APK 已放好：downloads/Earthory-v0.3.5.apk（文件名带版本号，换版本换新文件）。
   换包后同步修改 download.html 首屏的版本号 / 体积 / 更新日期 / 最低系统版本，
   以及安装说明卡片里的 SHA-256 校验值，还有下载按钮的 href 和 download 属性。
-- 投递邮箱为 jobs@earthory.ai，联系邮箱为 hello@earthory.ai。
+- 投递邮箱为 jobs@earthory.com，联系邮箱为 hello@earthory.com。
 - privacy.html 中的加密算法、审计与第三方说明为产品设想，
   正式对外发布前请与法务和安全团队核对。
 
@@ -141,6 +137,72 @@ index / hardware / app 三页的导航栏和页脚由已压缩的 earthory.js �
    privacy.html 现有的「我们靠硬件和订阅赚钱，不靠转手你的数据」
    存在冲突，两句同时出现在官网上会自相矛盾。要对外讲 Channels，
    得先重写 privacy.html 那一段。
+
+────────────────────────────────
+加入我们这一页（careers.html）
+────────────────────────────────
+「招聘」已全站改名为「加入我们」。改动落在 4 个静态页的导航与页脚，
+以及 earthory-motion.js 的 NAV_EXTRA / FOOT_EXTRA（首页 / 硬件页 /
+App 页的导航由 earthory.js 渲染，那两个数组负责补进去）。
+earthory.js 里没有出现过「招聘」二字，不用动。
+
+页面结构
+    首屏
+    「不只是招聘」——十个跳转卡，同时充当整页导航
+    01 加入团队      8 个岗位家族、42 个岗位
+    02 人工智能与软件技术合作
+    03 设备与硬件生态
+    04 产品与设备接入
+    05 渠道与市场合作
+    06 创作者与内容合作
+    07 媒体与公共关系
+    08 研究与学术合作
+    09 隐私、安全、法务与政策
+    10 战略合作
+    对接表单（#contact）
+    结尾深色区
+
+改内容
+    整页由脚本生成过一次，之后直接改 HTML 即可。
+    岗位在 .families 里，一个 .family 是一个家族。
+    每条通道的能力词条是 .chipset / .chips——这些列表很长，
+    写成项目符号会变成读不完的清单，所以用 chip 排。
+    .chips.solid 是实心样式，用来区分「合作方式」这类收尾组。
+
+各通道底部的按钮
+    href="#contact" + data-relation="…"，跳到表单时会自动把
+    「关系类型」选好，省得对方滚到底再找一遍。
+    data-relation 的值必须和表单里 radio 的 value 完全一致。
+
+★ 表单后端在 supabase/ 目录下
+    一张 Postgres 表 + 一个 Edge Function 当 API。
+    完整部署步骤见 supabase/README.md，这里只说要点。
+
+    没有让前端直连数据库。Supabase 常见做法是前端带 anon key 直接写
+    PostgREST，但那样安全性全押在 RLS 策略写得对不对上，而这张表里
+    是真实姓名和邮箱，写错一次就是泄露。现在是：
+      · 表开 RLS 且不建任何 policy —— 前端角色一行都读不到写不了
+      · 只有 service_role 写得进去，密钥只在 Edge Function 的环境变量里
+      · 浏览器里一个密钥都没有
+    看数据走 Supabase 后台 Table Editor。
+
+    部署完，把函数地址填进 earthory-pages.js 顶部的 JOIN_API：
+        var JOIN_API = 'https://<项目 ref>.supabase.co/functions/v1/join';
+    留空也不会坏 —— 页面会退回「把内容整理好让对方自己复制发邮件」，
+    所以后端没上线之前表单照样能用。
+
+    防垃圾提交三层，都在服务端：蜜罐字段（命中返回 200 骗过机器人）、
+    同 IP 每小时限流、relation 白名单 + 字段长度上限 + 数据库 CHECK。
+
+    PDPA：提交必须勾选同意，consent 存进库里备查；IP 只存 SHA-256
+    不存明文。还欠两件事 —— 保留期限没有自动清理，以及删除请求的
+    处理流程，见 supabase/README.md 末尾。
+
+岗位投递
+    42 个岗位都是 mailto:jobs@earthory.com，主题由 earthory-pages.js
+    按 data-role 拼成「应聘：岗位名」。
+    同样的提醒：mailto 在没配邮件客户端的手机上点了没反应，
+    量起来之后建议换 ATS（Ashby / Greenhouse / Lever）。
 
 ────────────────────────────────
 Earthory One 爆炸图（硬件页）
