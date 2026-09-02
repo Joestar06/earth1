@@ -98,13 +98,106 @@ index / hardware / app 三页的导航栏和页脚由已压缩的 earthory.js �
 ────────────────────────────────
 需要你替换的内容
 ────────────────────────────────
-- careers.html 里的 5 个岗位、地点与描述均为示例，请按实际情况修改。
-- APK 已放好：downloads/earthory-latest.apk（固定文件名，换版本直接覆盖）。
+- careers.html 里的 11 个岗位均为示例，请按实际在招的情况删改。
+  地点已统一为「新加坡」，写在每张卡片的第一个 .meta 里。
+  投递链接目前是 mailto:jobs@earthory.ai，主题由 earthory-pages.js
+  按 data-role 自动拼成「应聘：岗位名」。
+  注意：mailto 在没配邮件客户端的手机上点了没反应，投递量起来之后
+  建议换成 ATS（Ashby / Greenhouse / Lever），把 11 个 href 换成
+  各自的 JD 链接即可，卡片结构不用动。
+- APK 已放好：downloads/Earthory-v0.3.5.apk（文件名带版本号，换版本换新文件）。
   换包后同步修改 download.html 首屏的版本号 / 体积 / 更新日期 / 最低系统版本，
-  以及安装说明卡片里的 SHA-256 校验值。
+  以及安装说明卡片里的 SHA-256 校验值，还有下载按钮的 href 和 download 属性。
 - 投递邮箱为 jobs@earthory.ai，联系邮箱为 hello@earthory.ai。
 - privacy.html 中的加密算法、审计与第三方说明为产品设想，
   正式对外发布前请与法务和安全团队核对。
+
+────────────────────────────────
+从融资 PPT 搬过来的内容
+────────────────────────────────
+1. how.html「摄像头保存画面 / Earthory 保存事件」
+   四行对照表 + 收尾句「更接近大脑的外挂」。插在原理条之后、
+   四层结构之前。section 上挂 .contrast-section，样式在
+   earthory-pages.css 末尾——这次唯一新增的 CSS。
+   版式：左列右对齐顶到箭头，右列左对齐加粗，行距压得比正文紧，
+   四行要读起来像一张表而不是四个段落。箭头用站内 sprite 的
+   #eo-arrow-right，窄屏下转 90° 变竖排。
+   开头那段带进了 PPT 第 2 页的四个问题——其中「医生刚才交代了
+   什么」「事故之前发生了什么」是官网原来没有的场景。
+
+2. 首页顶部的品类定位条（互联网 / 大模型 / Earthory 三句）
+   首页由 earthory.js 渲染，改不了源码，所以和场景图一样在运行时
+   插入：earthory-motion.js 的 category()，文案在同一处的 CATEGORY。
+   复用 how.html 已有的 .principle-strip 深色样式。
+
+搬过又撤掉的：PPT 第 14 页「个人世界模型，不该只依赖一台设备」
+   （One / 授权设备 / 可信服务 / 历史导入 四个数据来源）。
+   撤掉之后，官网就没有地方回答「没买硬件，下载 App 有什么用」了。
+   以后要补回来，从 git 历史里把那个 <section> 拷回来即可，
+   它复用的是现成的 .feature-intro + .flow-list，不需要额外样式。
+
+没有搬过来的：PPT 第 12 页商业模式。
+   其中「Channels：公开数据按月订阅，平台收取 20%–30%」与
+   privacy.html 现有的「我们靠硬件和订阅赚钱，不靠转手你的数据」
+   存在冲突，两句同时出现在官网上会自相矛盾。要对外讲 Channels，
+   得先重写 privacy.html 那一段。
+
+────────────────────────────────
+Earthory One 爆炸图（硬件页）
+────────────────────────────────
+硬件页「同一颗核心，换个外壳，换个场景」那一段，原来左边是半幅竖框
+配头盔概念图，用的是 center/cover——容器约 560×610 是竖的，图是
+16:9 横的，结果左右各裁掉一大块，图里的标注全被切没了。
+
+现在改成：整幅爆炸图在上，4 张特性卡在下面排成两列。
+    图片   assets/one-exploded-sphere.jpg（1600×900）
+    样式   earthory-pages.css 末尾「硬件页「同一颗核心」」那一段
+           .system-orb 改成 aspect-ratio:16/9 + contain，不裁切
+    覆盖   旧规则在 earthory.css 里，本站加载顺序是
+           earthory.css → earthory-motion.css → earthory-pages.css，
+           所以写在 earthory-pages.css 末尾就能盖掉，不用改原文件
+
+换图只改 earthory-pages.css 里 .system-orb 的 background url。
+
+图下面那段部件清单由 earthory-motion.js 的 exploded() 插入，
+文案在同一处的 PARTS。为什么要这段文字：
+  · 图里的标注是烤进像素的，手机上缩到很小就看不清了
+  · 背景图没有 alt，搜索引擎和读屏软件读不到
+  · 底部「目标硬件架构概念 · 最终配置以工程实现为准」是对外的
+    规格免责声明，必须是可选中、可搜索的真文字
+exploded() 里还给 .system-orb 补了 role="img" 和 aria-label。
+
+顺带去掉了 .hardware-system:before 那个「MOBILE & PROFESSIONAL ·
+CONCEPT」白色角标——它是压在深色头盔图上的，换成浅色爆炸图之后
+白字看不见了，而且那句话讲的是头盔形态，已经不适用。
+
+注意：这张图把毫米波雷达、红外深度、扇形 AI 计算板等器件级信息
+公开了。PPT 是给投资人看的，官网是给所有人看的，包括同行。
+这是产品决策不是文案决策，上线前确认一下。
+
+────────────────────────────────
+how / privacy 两页的删减
+────────────────────────────────
+两页原来各 12–14 个 section、2200 字以上，且长段落连续无图，
+读起来累。这次删掉了内容重复的板块：
+
+how.html      14 → 11 个 section，2199 → 1574 字
+  砍「同一份数据五个层面增值」（和「五个入口」视觉雷同又更抽象）
+  砍「第一天就有用，时间越长越有用」（和 PROTECT/RECALL/REMEMBER
+     讲的是同一件事：随时间推移它做什么）
+  砍「第一条原则：能少记就少记」（privacy.html 有完整版，
+     页尾的 cross-link 已经引过去了）
+
+privacy.html  12 → 10 个 section，2315 → 1976 字
+  砍「这些承诺如何落地」和「停止、撤回、审计、遗忘」
+     （都和「六条不让步的底线」重叠）
+  FAQ 里砍掉「断网还能用吗」——那是功能问题，不属于隐私页
+
+FAQ 其余 6 条没动。它是 <details> 折叠的，视觉上只占 6 行标题，
+不是页面显得长的原因，砍了纯亏信任内容。
+
+被删板块的样式都还留在 earthory-pages.css 里（.cap-grid.five、
+.formula 等），想恢复直接从 git 历史里把 <section> 拷回来。
 
 ────────────────────────────────
 顺带修复
@@ -147,7 +240,7 @@ fixLinks() 中「首页 / App 页首屏补一个 APK 下载入口」那一段即
 招聘页只保留了首屏标题与岗位列表，
 移除的板块：原理条、我们在做什么、我们相信、我们为谁工作、
 我们提供、招聘流程、页尾大 CTA。
-岗位从 10 个减到 5 个（算法 / 检索 / 嵌入式 / 移动端 / 设计）。
+岗位曾精简到 5 个，现已扩充为 11 个，全部挂在新加坡 office。
 这些板块的样式仍保留在 earthory-pages.css 里，
 以后想加回来，直接从 git 历史里把对应 <section> 复制回去即可。
 
@@ -173,14 +266,22 @@ Logo 与图标
 ────────────────────────────────
 APK 放在哪
 ────────────────────────────────
-    earthory-static-website/downloads/earthory-latest.apk
+    earthory-static-website/downloads/Earthory-v0.3.5.apk
 
-已经放好了（当前是 Earthory-v0.2.6-interaction-fix-debug.apk）。
-换版本直接覆盖这个同名文件，页面链接不用改，
-但要顺手改 download.html 里的四项信息和 SHA-256。
+文件名按版本号命名，不用 latest 这种固定名。好处是换版本时 URL 也变了，
+不会被 CDN 或浏览器缓存住旧包；用户下载后在手机里也能看出装的是哪一版。
+
+换版本的步骤（download.html 里一共要改 6 处）：
+    1. 新 APK 放进 downloads/，命名成 Earthory-v版本号.apk，删掉旧的
+    2. 下载按钮的 href="downloads/Earthory-v新版本.apk"
+    3. 同一个按钮的 download="Earthory-v新版本.apk"
+       （download 属性是给忽略服务器文件名的浏览器兜底用的）
+    4. 首屏 .dl-meta 里的版本号 / 体积 / 更新日期 / 最低系统版本
+    5. 安装说明卡片里的 SHA-256
+    6. 右侧 App 卡片上的「安卓体验版 v新版本」
 
 Windows 上算 SHA-256：
-    certutil -hashfile downloads\earthory-latest.apk SHA256
+    certutil -hashfile downloads\Earthory-v0.3.5.apk SHA256
 
 上线时 downloads 文件夹要一起传到服务器。
 用 Nginx 的话，确认 .apk 的 MIME 类型是

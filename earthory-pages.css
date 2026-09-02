@@ -446,3 +446,59 @@ footer .brand-mark{height:24px}
   .cap-grid.five{grid-template-columns:1fr}
   .app-capabilities .formula{font-size:12px;padding:11px 16px}
 }
+
+/* ---------- 新品类对照表（how.html「摄像头保存画面 / Earthory 保存事件」） ----------
+   左列右对齐顶到箭头、右列左对齐，读起来是一条条「从…变成…」。
+   行距压得比正文紧，四行要像一张表，不像四个段落。 */
+.contrast-section{padding-top:88px;padding-bottom:88px}
+.contrast{max-width:820px;margin:40px auto 0;display:grid;gap:0}
+.contrast article{
+  display:grid;grid-template-columns:1fr 44px 1fr;align-items:center;gap:12px;
+  padding:14px 4px;border-top:1px solid var(--line)
+}
+.contrast article:last-child{border-bottom:1px solid var(--line)}
+.contrast b{font-weight:400;font-size:15px;color:#9aa5a0;text-align:right}
+.contrast i{display:grid;place-items:center;color:var(--sage)}
+.contrast i svg{width:20px;height:20px}
+.contrast span{font-size:18px;font-weight:600;text-align:left}
+@media(max-width:560px){
+  .contrast-section{padding-top:64px;padding-bottom:64px}
+  .contrast{margin-top:30px}
+  .contrast article{grid-template-columns:1fr;gap:2px;padding:14px 2px;text-align:left}
+  .contrast b{text-align:left;font-size:14px}
+  .contrast i{place-items:start}
+  .contrast i svg{width:15px;height:15px;transform:rotate(90deg)}
+  .contrast span{font-size:16px}
+}
+
+/* ---------- 硬件页「同一颗核心」：整幅爆炸图 ----------
+   原来这里是半幅竖框 + center/cover 的头盔图，横图被裁掉一半宽度，
+   两侧标注全切没了。改成整幅横图，contain 不裁切，4 张特性卡挪到下面。 */
+.hardware-system{grid-template-columns:1fr;gap:40px}
+.hardware-system:before{content:none}
+.system-orb{
+  min-height:0;width:100%;aspect-ratio:16/9;border-radius:28px;
+  border:1px solid var(--line);
+  background:url(assets/one-exploded-sphere.jpg) center/contain no-repeat var(--ivory)
+}
+.system-list{max-width:none;grid-template-columns:repeat(2,1fr);gap:14px}
+
+/* 部件清单：图里烤进去的标注在手机上看不清，这段是文字兜底，
+   同时给搜索引擎和读屏软件用。文案在 earthory-motion.js 的 PARTS。 */
+.sensor-parts{
+  margin:0;padding:20px 24px;border:1px solid var(--line);border-radius:18px;
+  background:#fff;color:var(--muted);font-size:13px;line-height:1.85
+}
+.sensor-parts b{
+  display:block;color:var(--sage);font-size:11px;letter-spacing:.14em;
+  font-weight:700;margin-bottom:9px
+}
+.sensor-parts em{display:block;margin-top:10px;font-style:normal;color:#8b958f;font-size:12px}
+@media(max-width:900px){
+  .system-orb{border-radius:22px}
+  .system-list{grid-template-columns:1fr}
+}
+@media(max-width:560px){
+  .system-orb{border-radius:16px}
+  .sensor-parts{padding:16px 18px;font-size:12px}
+}

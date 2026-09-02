@@ -130,6 +130,8 @@
     ['.ledger > article', 'up', 140, 0],
     ['.faq details', 'up', 70, 0],
     ['.creed article', 'up', 130, 0],
+    ['.contrast article', 'up', 120, 0],
+    ['.sensor-parts', 'up', 0, 120],
     ['.role-group > h3', 'up', 0, 0],
     ['.role-group > p', 'up', 0, 70],
     ['.role', 'up', 80, 0],
@@ -577,6 +579,73 @@
   }
 
   /* ==========================================================
+     8.6 首页品类定位条
+
+     「互联网索引数字世界 / 大模型连接人类知识 / Earthory 建立记忆层」
+     首页由 earthory.js 渲染，同样在运行时插进去，插在首屏之后。
+     复用 how.html 已有的 .principle-strip 深色样式，不需要新 CSS。
+     改文案直接改下面的 CATEGORY。
+     ========================================================== */
+  var CATEGORY = [
+    '互联网索引数字世界。',
+    '大模型连接人类知识。',
+    'Earthory 建立个人现实世界的记忆层。'
+  ];
+
+  function category() {
+    var f = (location.pathname.split('/').pop() || '').toLowerCase();
+    if (f !== '' && f !== 'index.html') return;
+    if (document.getElementById('eo-category')) return;
+    var hero = document.querySelector('.hero');
+    if (!hero || !hero.parentNode) return;
+
+    var sec = document.createElement('section');
+    sec.id = 'eo-category';
+    sec.className = 'principle-strip';
+    sec.innerHTML = CATEGORY.map(function (t) {
+      return '<span>' + t + '</span>';
+    }).join('');
+    hero.parentNode.insertBefore(sec, hero.nextSibling);
+  }
+
+  /* ==========================================================
+     8.7 Earthory One 部件清单（只在硬件页）
+
+     爆炸图本身是 .system-orb 的背景图，换图在 earthory-pages.css。
+     这里补的是图下面那段文字清单——图里的标注是烤进像素的，
+     手机上看不清，也搜不到、选不中、读屏软件读不出来。
+     底部那句免责声明同理，必须是真文字。
+
+     ┌ 改文案就改 PARTS ┐
+     ========================================================== */
+  var PARTS =
+    '透明光学球壳 · 环形传感器组件 · 360° 多摄像头阵列 · 红外与深度传感模组 · ' +
+    '周向毫米波雷达阵列 · 麦克风阵列与柔性天线 · 中央惯性测量单元 · 扇形 AI 计算板 · ' +
+    '三片对称弧形电池 · 下半球导热承力骨架 · 统一磁吸接口';
+
+  function exploded() {
+    var f = (location.pathname.split('/').pop() || '').toLowerCase();
+    if (f !== 'hardware.html' && f !== 'hardware') return;
+    if (document.getElementById('eo-parts')) return;
+
+    var orb = document.querySelector('.system-orb');
+    if (!orb || !orb.parentNode) return;
+
+    /* 背景图没有 alt，给这块加个无障碍描述 */
+    orb.setAttribute('role', 'img');
+    orb.setAttribute('aria-label',
+      'Earthory One 爆炸图：透明光学球壳、环形传感器组件与下半球导热承力骨架');
+
+    var box = document.createElement('p');
+    box.id = 'eo-parts';
+    box.className = 'sensor-parts';
+    box.innerHTML =
+      '<b>TARGET HARDWARE ARCHITECTURE · CONCEPT</b>' + PARTS +
+      '<em>目标硬件架构概念 · 最终配置以工程实现为准</em>';
+    orb.parentNode.insertBefore(box, orb.nextSibling);
+  }
+
+  /* ==========================================================
      9. 扫描 / 重扫（React 重渲染后自愈）
      ========================================================== */
   var scanning = false;
@@ -586,6 +655,8 @@
     try {
       fixLinks();
       scenes();
+      category();
+      exploded();
       each('.hero, .subhero', document, atmosphere);
       each('.hero-orb, .device-stage, .system-orb, .people-stage, .photo-band, .phone-showcase, .phone-frame, .hub-card', document, hud);
       each('.world-map', document, function (m) { if (!m.dataset.eoNet) constellation(m); });
