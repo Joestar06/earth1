@@ -111,4 +111,155 @@
     a.href = a.getAttribute('href') +
       '?subject=' + encodeURIComponent('应聘：' + a.getAttribute('data-role'));
   }
+
+  /* ---------- 4. 加入我们：对接表单 ---------- */
+
+  /* ┌ 部署后把这一行填上 ┐
+     Supabase Edge Function 的地址，形如：
+       https://<项目 ref>.supabase.co/functions/v1/join
+     留空则退回「整理好内容让对方自己复制发邮件」的模式，
+     所以后端没上线之前页面也不会坏。 */
+  var JOIN_API = 'https://bferzqerttgoiznbcopo.supabase.co/functions/v1/join';
+
+  var joinForm = document.querySelector('.join-form');
+  if (joinForm) {
+
+    /* 各条通道底部的按钮跳到表单时，顺手把「关系类型」选好，
+       省得对方滚到底还要自己再找一遍。 */
+    var jumps = document.querySelectorAll('a[data-relation][href="#contact"]');
+    for (var j = 0; j < jumps.length; j++) {
+      jumps[j].addEventListener('click', function () {
+        var want = this.getAttribute('data-relation');
+        var radios = joinForm.querySelectorAll('input[name="relation"]');
+        for (var r = 0; r < radios.length; r++) {
+          if (radios[r].value === want) { radios[r].checked = true; break; }
+        }
+      });
+    }
+
+    function field(name) {
+      var el = joinForm.elements[name];
+      return el && el.value ? el.value.trim() : '';
+    }
+    function relation() {
+      var picked = joinForm.querySelector('input[name="relation"]:checked');
+      return picked ? picked.value : '其他';
+    }
+
+    /* 结果区：成功、失败、以及没配后端时的复制方案都用它 */
+    function panel() {
+      var box = joinForm.querySelector('.join-result');
+      if (!box) {
+        box = document.createElement('div');
+        box.className = 'join-result';
+        joinForm.appendChild(box);
+      }
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      return box;
+    }
+
+    function showError(msg) {
+      var box = panel();
+      box.className = 'join-result is-error';
+      box.innerHTML = '<h3>没有提交成功</h3><p></p>';
+      box.querySelector('p').textContent =
+        msg + '　你也可以直接写信到 hello@earthory.com。';
+    }
+
+    function showDone() {
+      var box = panel();
+      box.className = 'join-result is-done';
+      box.innerHTML =
+        '<h3>收到了</h3>' +
+        '<p>我们会尽快与你联系。想补充材料的话，直接写信到 ' +
+        '<a href="mailto:hello@earthory.com">hello@earthory.com</a> 即可。</p>';
+    }
+
+    /* 没配后端时的退路：把内容整理好让对方自己复制。
+       早期版本试过塞进 mailto 的 body，但中文经百分号编码后一个字
+       占 9 个字节，两百来字就超出邮件客户端的地址长度上限被静默截断。
+       渠道页丢掉半封信比没有表单还糟，所以改成显式复制。 */
+    function showCopy() {
+      var text = [
+        '关系类型：' + relation(), '',
+        '姓名：' + (field('name') || '（未填）'),
+        '公司 / 机构：' + (field('org') || '（未填）'),
+        '国家 / 地区：' + (field('region') || '（未填）'),
+        '电子邮箱：' + (field('email') || '（未填）'),
+        '主页 / LinkedIn：' + (field('link') || '（未填）'), '',
+        '── 能为 Earthory 带来什么 ──', field('bring') || '（未填）', '',
+        '── 希望一起完成什么 ──', field('goal') || '（未填）', '',
+        '── 相关案例、作品或资源 ──', field('work') || '（未填）'
+      ].join('\n');
+
+      var box = panel();
+      box.className = 'join-result';
+      box.innerHTML =
+        '<h3>内容已整理好</h3>' +
+        '<p>请把下面的内容发到 <a href="mailto:hello@earthory.com">hello@earthory.com</a>。</p>' +
+        '<textarea readonly rows="12"></textarea>' +
+        '<div class="join-result-actions">' +
+        '<button type="button" class="copy">复制内容</button>' +
+        '<a class="mailto" href="mailto:hello@earthory.com">打开邮件客户端</a>' +
+        '</div>';
+      box.querySelector('textarea').value = text;
+      box.querySelector('.copy').addEventListener('click', function () {
+        var ta = box.querySelector('textarea');
+        var btn = this;
+        function ok() {
+          btn.textContent = '已复制';
+          setTimeout(function () { btn.textContent = '复制内容'; }, 2200);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(ta.value).then(ok, function () { ta.select(); });
+        } else {
+          ta.select();
+          try { document.execCommand('copy'); ok(); } catch (err) { /* 让用户自己复制 */ }
+        }
+      });
+    }
+
+    joinForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!joinForm.reportValidity()) return;
+
+      if (!JOIN_API) { showCopy(); return; }
+
+      var btn = joinForm.querySelector('button[type="submit"]');
+      var label = btn ? btn.textContent : '';
+      if (btn) { btn.disabled = true; btn.textContent = '提交中…'; }
+
+      fetch(JOIN_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          relation: relation(),
+          name: field('name'),
+          email: field('email'),
+          org: field('org'),
+          region: field('region'),
+          link: field('link'),
+          bring: field('bring'),
+          goal: field('goal'),
+          work: field('work'),
+          company_website: field('company_website'),
+          consent: true,
+          source: location.pathname
+        })
+      }).then(function (res) {
+        return res.json().then(function (data) { return { res: res, data: data }; });
+      }).then(function (r) {
+        if (r.res.ok && r.data && r.data.ok) {
+          showDone();
+          joinForm.reset();
+        } else {
+          showError((r.data && r.data.error) || '服务暂时没有响应。');
+        }
+      }).catch(function () {
+        showError('网络没有连上。');
+      }).then(function () {
+        if (btn) { btn.disabled = false; btn.textContent = label; }
+      });
+    });
+  }
 })();

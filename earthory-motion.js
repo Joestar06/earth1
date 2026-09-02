@@ -123,7 +123,7 @@
     ['.app-capabilities > h2', 'mask', 0, 90],
     ['.app-capabilities > p', 'up', 0, 200],
 
-    /* 工作方式 / 隐私 / 招聘（静态页新增组件） */
+    /* 工作方式 / 隐私 / 加入我们（静态页新增组件） */
     ['.flow-stage > *', 'right', 55, 140],
     ['.zone-stage > *', 'up', 120, 200],
     ['.people-stage', 'stage', 0, 220],
@@ -135,6 +135,15 @@
     ['.role-group > h3', 'up', 0, 0],
     ['.role-group > p', 'up', 0, 70],
     ['.role', 'up', 80, 0],
+    ['.ways a', 'up', 55, 0],
+    ['.track-head > b', 'up', 0, 0],
+    ['.track-head > div > .eyebrow', 'up', 0, 40],
+    ['.track-head > div > h2', 'mask', 0, 110],
+    ['.track-head > div > p', 'up', 60, 230],
+    ['.chipset', 'up', 90, 0],
+    ['.family', 'up', 90, 0],
+    ['.track-cta', 'up', 0, 120],
+    ['.join-form fieldset', 'up', 110, 0],
     ['.photo-band', 'stage', 0, 0],
     ['.photo-duo figure', 'zoom', 120, 0],
     ['.plain-section > .eyebrow', 'up', 0, 0],
@@ -404,15 +413,15 @@
      8. 站点导航：接入新增的静态页 + 页面切换淡出
 
      index / hardware / app 三页的导航由 earthory.js 渲染，无法直接改源码，
-     因此在这里把「工作方式 / 隐私与安全」指向新页面，并补上「招聘」入口。
+     因此在这里把「工作方式 / 隐私与安全」指向新页面，并补上「加入我们」入口。
      ========================================================== */
   var PAGES = /^(index|hardware|app|how|privacy|careers|download)\.html/;
   var onIndex = !/\/(hardware|app)\.html$/.test(location.pathname);
 
   /* 首页锚点 → 独立页面 */
   var ANCHOR_MAP = { '/#how': 'how.html', '/#privacy': 'privacy.html' };
-  var NAV_EXTRA = [['careers.html', '招聘']];
-  var FOOT_EXTRA = [['how.html', '工作方式'], ['privacy.html', '隐私与安全'], ['download.html', '下载'], ['careers.html', '招聘']];
+  var NAV_EXTRA = [['careers.html', '加入我们']];
+  var FOOT_EXTRA = [['how.html', '工作方式'], ['privacy.html', '隐私与安全'], ['download.html', '下载'], ['careers.html', '加入我们']];
 
   function addLink(host, href, text, before) {
     if (host.querySelector('a[href="' + href + '"]')) return;
