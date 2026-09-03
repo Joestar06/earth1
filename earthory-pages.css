@@ -693,3 +693,282 @@ footer .brand-mark{height:24px}
   .ways{grid-template-columns:1fr;margin-top:32px}
   .join-close{padding:76px 20px}
 }
+
+/* ============================================================
+   移动端导航
+
+   earthory.css 在 max-width:900px 时把 .nav nav 整个 display:none，
+   却没有任何替代入口——手机上五个页面只能靠滚到页脚才进得去。
+   这里补一个汉堡菜单。
+
+   按钮由 earthory-motion.js 在运行时插入（首页 / 硬件页 / App 页的
+   导航由 earthory.js 渲染，改不了源码），面板挂在 body 上。
+   ============================================================ */
+
+/* 桌面端完全不存在 */
+.nav-burger{display:none}
+
+@media(max-width:900px){
+  /* 导航被隐藏后 margin-left:auto 也没了，下载按钮会贴到 logo 旁边。
+     把它和汉堡一起推回右侧。 */
+  .nav .nav-cta{margin-left:auto}
+
+  .nav-burger{
+    display:grid;align-content:center;justify-items:center;gap:4px;
+    width:42px;height:42px;flex:0 0 42px;padding:0;
+    border:1px solid var(--line);border-radius:12px;
+    background:#fff;color:var(--ink);cursor:pointer
+  }
+  .nav-burger:hover{border-color:var(--mint)}
+  .nav-burger:focus-visible{outline:2px solid var(--sage);outline-offset:2px}
+  .nav-burger i{
+    display:block;width:16px;height:1.5px;border-radius:2px;background:currentColor;
+    transition:transform .28s cubic-bezier(.22,1,.36,1),opacity .18s ease
+  }
+  /* 打开时收成一个叉 */
+  .nav-burger[aria-expanded="true"] i:nth-child(1){transform:translateY(5.5px) rotate(45deg)}
+  .nav-burger[aria-expanded="true"] i:nth-child(2){opacity:0}
+  .nav-burger[aria-expanded="true"] i:nth-child(3){transform:translateY(-5.5px) rotate(-45deg)}
+}
+
+/* ---- 面板：挂在 body 上，避免被 .site-shell 的 overflow:hidden 裁掉 ---- */
+.eo-mnav{
+  position:fixed;inset:0;z-index:90;
+  display:grid;grid-template-rows:auto 1fr;
+  background:#fff;
+  visibility:hidden;opacity:0;
+  transition:opacity .26s ease,visibility .26s
+}
+.eo-mnav.is-open{visibility:visible;opacity:1}
+.eo-mnav-top{
+  height:68px;display:flex;align-items:center;padding:0 18px;
+  border-bottom:1px solid var(--line)
+}
+.eo-mnav-top .brand{display:flex;align-items:center;font-size:22px;font-weight:720}
+.eo-mnav-top .brand-mark{height:26px;margin-right:8px}
+.eo-mnav-list{
+  padding:12px 18px 34px;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  display:flex;flex-direction:column
+}
+.eo-mnav-list a{
+  display:flex;align-items:center;justify-content:space-between;
+  min-height:56px;padding:10px 4px;
+  font:500 21px var(--serif);
+  border-bottom:1px solid var(--line);
+  opacity:0;transform:translateY(8px)
+}
+.eo-mnav.is-open .eo-mnav-list a{
+  opacity:1;transform:none;
+  transition:opacity .34s ease,transform .34s cubic-bezier(.22,1,.36,1)
+}
+.eo-mnav-list a[aria-current="page"]{color:var(--sage)}
+.eo-mnav-list a svg{width:16px;height:16px;color:var(--sage);flex:0 0 16px}
+.eo-mnav-list .eo-mnav-cta{
+  margin-top:26px;border-bottom:0;justify-content:center;
+  background:var(--sage);color:#fff;border-radius:999px;
+  font:600 16px var(--sans);min-height:52px
+}
+.eo-mnav-list .eo-mnav-cta svg{color:#fff}
+
+/* 面板打开时锁住背后的滚动 */
+html.eo-mnav-lock,html.eo-mnav-lock body{overflow:hidden}
+
+@media(min-width:901px){
+  /* 视口变宽时面板必须让位，否则会盖住整个桌面站 */
+  .eo-mnav{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  .eo-mnav,.eo-mnav-list a,.nav-burger i{transition:none!important}
+}
+
+/* ============================================================
+   移动端观感
+
+   全站原有的两个断点（900 / 560）只做了布局塌缩——多列变一列。
+   这一段处理塌缩之后剩下的问题：点不点得准、浏览器会不会自作主张
+   放大文字、刘海和 home indicator 会不会压到内容、中文标题在小字号
+   下的字距，以及触屏上卡住不走的 :hover。
+
+   放在文件末尾。earthory-pages.css 是最后加载的一张表，
+   同权重下这里的规则赢过 earthory.css，不用动那份压缩过的源文件。
+   ============================================================ */
+
+/* ---------- 1. 收掉移动浏览器的两个默认行为 ---------- */
+html{
+  /* iOS 横屏时会按自己的算法放大正文，字号一乱排版全散 */
+  -webkit-text-size-adjust:100%;text-size-adjust:100%
+}
+body{
+  /* 默认那层灰蓝色点击闪光和全站的克制配色打架，换成品牌绿的极淡一层。
+     不设成 transparent——完全没有反馈，手机上会觉得没点上。 */
+  -webkit-tap-highlight-color:rgba(79,146,120,.09)
+}
+
+/* ---------- 2. iOS 聚焦输入框不再放大整页 ---------- */
+/* Safari 在聚焦 font-size 小于 16px 的输入框时会缩放整个视口，而且
+   失焦后不会缩回去。「加入我们」那张表十来个字段，原来 font:inherit
+   继承的是 label 的 13px，每点一个字段页面就跳一次。 */
+@media(max-width:900px){
+  input,textarea,select,
+  .join-form input,.join-form textarea,
+  .modal input,.modal textarea,
+  .ask-box input,
+  .join-result textarea{font-size:16px}
+  /* 输入框变大了，标签本身保持原来的小字号 */
+  .join-form label.field{font-size:13px}
+}
+
+/* ---------- 3. 刘海与 home indicator ---------- */
+/* 竖屏 Safari 里这些 env() 都是 0，代价为零；横屏和 PWA 全屏模式下
+   才起作用，那时候不留边内容会被切掉。 */
+@media(max-width:900px){
+  .nav{
+    padding-left:max(18px,env(safe-area-inset-left));
+    padding-right:max(18px,env(safe-area-inset-right))
+  }
+  footer{padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+}
+
+/* ---------- 4. 中文标题的字距 ---------- */
+/* letter-spacing 的负值是给拉丁文大字号收紧用的。套在方块字上只会把
+   字挤成一团，字号越小越明显，所以手机上归零。
+   text-wrap:balance 顺手解决中文标题末行掉一个孤字的问题。 */
+@media(max-width:560px){
+  .hero h1,.subhero h1,.slim-hero h1,
+  .section-copy h2,.story h2,.recall h2,.world h2,.privacy h2,
+  .plain-section > h2,.track-head h2,.join-close h2,
+  .feature-intro h2,.app-flow h2,.conversation-section h2,
+  .app-capabilities h2,.app-statement h2,.hub-section h2{
+    letter-spacing:0;text-wrap:balance
+  }
+}
+
+/* ---------- 5. 品类三句话在手机上竖排 ---------- */
+/* .principle-strip 是 display:flex 且没有 flex-wrap，三句话（共约 40 个
+   汉字）在 375px 宽的屏幕上会被压成三条各自换行的窄柱，
+   原来的 11px 宋体基本读不了。改成一句一行，字号提回可读区间。
+   motion.css 那个逐句点亮的动画竖排后照常工作。 */
+@media(max-width:900px){
+  .principle-strip{
+    flex-direction:column;align-items:stretch;gap:0;
+    padding:26px max(20px,env(safe-area-inset-left));
+    font-size:16px;line-height:1.7;text-align:left
+  }
+  .principle-strip span{padding:12px 0}
+  .principle-strip span + span{border-top:1px solid rgba(217,238,229,.15)}
+}
+@media(max-width:560px){
+  .principle-strip{font-size:15px;padding:22px 20px}
+  .principle-strip span{padding:10px 0}
+}
+
+/* ---------- 6. 页脚链接横向溢出 ---------- */
+/* 七条链接排在一个不换行的 flex 行里，12px 字号下也要五百多像素，
+   手机上只有三百出头，结果是 Earthory One 被从中间折断。
+   改成两列网格，既不溢出又能对齐。 */
+@media(max-width:560px){
+  footer{flex-wrap:wrap;gap:20px;padding-left:20px;padding-right:20px}
+  footer div{
+    display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;
+    width:100%;margin:0
+  }
+  footer div a{padding:3px 0}
+}
+
+/* ---------- 7. 首屏按钮竖排后不等宽 ---------- */
+/* 560px 以下改成竖排，但 align-items:center 让「留下联系方式」和
+   「探索 Earthory App」各按自己的文字宽度居中，一宽一窄很毛糙。 */
+@media(max-width:560px){
+  .hero-actions{align-items:stretch;width:100%;max-width:330px;margin:0 auto}
+  .hero-actions > *{justify-content:center;text-align:center}
+  .hero-actions .primary,.hero-actions .secondary{padding-top:15px;padding-bottom:15px}
+  .hero-actions .secondary{display:flex;align-items:center;gap:8px}
+}
+
+/* ---------- 8. 点击目标 ---------- */
+/* 一根手指的接触面大约 44px。低于这个数在手机上就是要点两次。
+   岗位列表原来是 padding:7px 0，算上行高只有 36px，
+   而那一页有四十多条这样的链接。 */
+@media(max-width:900px){
+  .nav-cta{min-height:42px;display:inline-flex;align-items:center;justify-content:center}
+  .family a{padding:11px 0}
+  .relations span{padding:11px 18px}
+  .ways a{padding:17px 18px}
+  .join-form button{padding:16px 34px}
+}
+
+/* ---------- 9. 世界地图的节点 ---------- */
+/* 10px 在手机上已经不是「小字」是「看不清」。位置不动——那几个
+   百分比是照着球的轮廓调的，动了就会压到球心。 */
+@media(max-width:560px){
+  .world-node{font-size:11px;padding:7px 10px}
+}
+
+/* ---------- 10. 触屏上不该留悬停残留 ---------- */
+/* 手机没有指针，:hover 会在点完之后卡住不走——卡片浮起来不落下、
+   图片一直放大着。这些留给真有指针的设备，触屏换成按下时的即时反馈。 */
+@media(hover:none){
+  .nav-cta:hover,.primary:hover,.track-cta:hover,
+  .product-gateway > a:hover,.world-node:hover{transform:none}
+  .family a:hover{padding-left:0}
+  .scene-trio figure:hover img{transform:none}
+
+  .nav-cta:active,.primary:active,.track-cta:active,
+  .join-form button:active,.dl-btn:active{transform:scale(.97)}
+  .ways a:active,.family a:active,
+  .eo-mnav-list a:active,.faq summary:active{background:var(--pearl)}
+}
+
+/* ---------- 11. 板块之间的呼吸 ---------- */
+/* 桌面上 100~120px 的段落间距，在手机上就是整整一屏的空白。
+   一路划下去只记得自己在划。整体收一档，节奏紧一点。 */
+@media(max-width:560px){
+  .values,.section,.plain-section,
+  .privacy,.recall,.app-statement,.app-flow,
+  .feature-intro,.hub-section,.conversation-section{
+    padding-top:64px;padding-bottom:64px
+  }
+  .app-capabilities{padding-top:70px;padding-bottom:70px}
+  .track{padding-top:52px;padding-bottom:52px}
+  .join-close{padding-top:68px;padding-bottom:68px}
+  .final-cta{padding:52px 24px;margin-bottom:44px}
+  .contrast-section{padding-top:56px;padding-bottom:56px}
+}
+
+/* ============================================================
+   移动端导航面板的补充
+
+   面板 z-index 90 完全盖住 z-index 10 的 .nav，汉堡按钮在底下
+   既看不见也点不到，手机上又没有 Esc 键——所以面板自己必须带
+   一个关闭按钮，否则打开之后只能靠点某条链接离开当前页。
+   按钮由 earthory-motion.js 的 mnavPanel() 建出来。
+   ============================================================ */
+.eo-mnav-top{justify-content:space-between;gap:16px}
+.eo-mnav-brand{display:flex;align-items:center;min-width:0}
+.eo-mnav-x{
+  flex:0 0 40px;width:40px;height:40px;padding:0;position:relative;
+  border:1px solid var(--line);border-radius:12px;
+  background:#fff;color:var(--ink);cursor:pointer
+}
+.eo-mnav-x i{
+  position:absolute;top:50%;left:50%;width:16px;height:1.5px;
+  margin:-.75px 0 0 -8px;border-radius:2px;background:currentColor
+}
+.eo-mnav-x i:first-child{transform:rotate(45deg)}
+.eo-mnav-x i:last-child{transform:rotate(-45deg)}
+.eo-mnav-x:hover{border-color:var(--mint)}
+.eo-mnav-x:focus-visible{outline:2px solid var(--sage);outline-offset:2px}
+
+/* 刘海下面 / home indicator 上面都得留出位置，
+   否则第一条链接会被切掉、最后一条会压在小横条底下。 */
+.eo-mnav-top{
+  height:calc(68px + env(safe-area-inset-top));
+  padding-top:env(safe-area-inset-top);
+  padding-left:max(18px,env(safe-area-inset-left));
+  padding-right:max(18px,env(safe-area-inset-right))
+}
+.eo-mnav-list{
+  padding-bottom:calc(34px + env(safe-area-inset-bottom));
+  padding-left:max(18px,env(safe-area-inset-left));
+  padding-right:max(18px,env(safe-area-inset-right))
+}

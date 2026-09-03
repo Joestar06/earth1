@@ -499,6 +499,9 @@
 
       e.preventDefault();
       e.stopPropagation();
+      /* 这里在捕获阶段就掐断了事件，面板自己的关闭逻辑收不到，
+         所以显式关一次，别让它盖着淡出动画。 */
+      mnavClose();
       html.classList.remove('eo-ready');
       html.classList.add('eo-leaving');
       setTimeout(function () { location.href = dest; }, 170);
@@ -655,6 +658,139 @@
   }
 
   /* ==========================================================
+     8.8 移动端导航
+
+     earthory.css 在 max-width:900px 时把 .nav nav 整个 display:none，
+     却没有补任何替代入口——手机上除了 logo 和「下载」，五个页面
+     全都进不去，只能滚到页脚找链接。这里补一个汉堡菜单。
+
+     首页 / 硬件页 / App 页的导航由 earthory.js 渲染，所以按钮同样
+     在运行时插入；面板挂在 body 上，React 重渲染冲不掉它，
+     按钮被冲掉了下一次 scan() 会补回来。
+
+     面板里的链接每次打开时从当前 DOM 现读，所以永远和顶部导航一致。
+     ========================================================== */
+  var MNAV_BREAK = 900;
+
+  function mnavPanel() {
+    var panel = document.getElementById('eo-mnav');
+    if (panel) return panel;
+
+    panel = el('div', 'eo-mnav');
+    panel.id = 'eo-mnav';
+    panel.setAttribute('role', 'dialog');
+    panel.setAttribute('aria-modal', 'true');
+    panel.setAttribute('aria-label', '站点导航');
+    /* 面板 z-index 90 盖住 z-index 10 的 .nav，汉堡按钮在底下点不到，
+       手机又没有 Esc 键——不给关闭按钮就只能靠点链接离开这一页。 */
+    panel.innerHTML =
+      '<div class="eo-mnav-top">' +
+        '<div class="eo-mnav-brand"></div>' +
+        '<button type="button" class="eo-mnav-x" aria-label="关闭菜单">' +
+          '<i></i><i></i>' +
+        '</button>' +
+      '</div>' +
+      '<nav class="eo-mnav-list"></nav>';
+    panel.querySelector('.eo-mnav-x').addEventListener('click', function (e) {
+      e.preventDefault();
+      mnavClose();
+    });
+    document.body.appendChild(panel);
+    return panel;
+  }
+
+  function mnavFill(panel) {
+    /* 顶部放品牌，让面板看起来是页面的一部分而不是浮层 */
+    var top = panel.querySelector('.eo-mnav-brand');
+    var brand = document.querySelector('.nav .brand');
+    top.innerHTML = brand ? brand.outerHTML : '<span class="brand">Earthory</span>';
+
+    var list = panel.querySelector('.eo-mnav-list');
+    var arrow = '<svg class="ic" viewBox="0 0 256 256"><use href="#eo-arrow-right"/></svg>';
+    var html = '';
+
+    each('.nav nav a', document, function (a) {
+      var cur = a.getAttribute('aria-current') === 'page';
+      html += '<a href="' + a.getAttribute('href') + '"' +
+        (cur ? ' aria-current="page"' : '') + '>' +
+        '<span>' + a.textContent.trim() + '</span>' + (cur ? arrow : '') + '</a>';
+    });
+
+    /* 下载按钮在移动端本来就看得见，但放进菜单里更完整 */
+    html += '<a class="eo-mnav-cta" href="download.html"><span>下载 App</span>' + arrow + '</a>';
+    list.innerHTML = html;
+
+    /* 逐条错开出现，和全站其他进场节奏一致 */
+    each('a', list, function (a, i) {
+      a.style.transitionDelay = REDUCED ? '0s' : (0.04 + i * 0.035) * SPEED + 's';
+    });
+  }
+
+  var mnavOpener = null;
+
+  function mnavClose() {
+    var panel = document.getElementById('eo-mnav');
+    if (!panel || !panel.classList.contains('is-open')) return;
+    panel.classList.remove('is-open');
+    html.classList.remove('eo-mnav-lock');
+    each('.nav-burger', document, function (b) {
+      b.setAttribute('aria-expanded', 'false');
+      b.setAttribute('aria-label', '打开菜单');
+    });
+    if (mnavOpener && mnavOpener.focus) mnavOpener.focus();
+    mnavOpener = null;
+  }
+
+  function mnavOpen(btn) {
+    var panel = mnavPanel();
+    mnavFill(panel);
+    panel.classList.add('is-open');
+    html.classList.add('eo-mnav-lock');
+    btn.setAttribute('aria-expanded', 'true');
+    btn.setAttribute('aria-label', '关闭菜单');
+    mnavOpener = btn;
+    var first = panel.querySelector('a');
+    if (first) first.focus();
+  }
+
+  function mobileNav() {
+    var bar = document.querySelector('.nav');
+    if (!bar || bar.querySelector('.nav-burger')) return;
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'nav-burger';
+    btn.setAttribute('aria-label', '打开菜单');
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-controls', 'eo-mnav');
+    btn.innerHTML = '<i></i><i></i><i></i>';
+    btn.addEventListener('click', function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      var panel = document.getElementById('eo-mnav');
+      if (panel && panel.classList.contains('is-open')) mnavClose();
+      else mnavOpen(btn);
+    });
+    bar.appendChild(btn);
+  }
+
+  /* 点了菜单里的链接就关掉：静态页会真的跳转，
+     但同页锚点不会，留着面板挡着就成了 bug。 */
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest ? e.target.closest('#eo-mnav a') : null;
+    if (a) mnavClose();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' || e.keyCode === 27) mnavClose();
+  });
+
+  /* 转屏或拉宽到桌面尺寸时必须收起，否则面板会盖住整站 */
+  window.addEventListener('resize', function () {
+    if (window.innerWidth > MNAV_BREAK) mnavClose();
+  });
+
+  /* ==========================================================
      9. 扫描 / 重扫（React 重渲染后自愈）
      ========================================================== */
   var scanning = false;
@@ -666,6 +802,7 @@
       scenes();
       category();
       exploded();
+      mobileNav();
       each('.hero, .subhero', document, atmosphere);
       each('.hero-orb, .device-stage, .system-orb, .people-stage, .photo-band, .phone-showcase, .phone-frame, .hub-card', document, hud);
       each('.world-map', document, function (m) { if (!m.dataset.eoNet) constellation(m); });
