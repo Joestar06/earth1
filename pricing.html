@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Earthory 记忆方案定价：按场景、存储容量和记忆保存周期灵活选择，个人到企业级五档套餐，支持自定义配置">
+<title>计划和定价｜选择适合你的记忆方案</title>
+<meta property="og:type" content="website"><meta property="og:title" content="计划和定价｜选择适合你的记忆方案"><meta property="og:description" content="按场景、存储容量和记忆保存周期灵活选择"><meta property="og:image" content="assets/earthory-og.png"><meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" href="assets/earthory-app-icon.png">
+<link rel="apple-touch-icon" href="assets/earthory-touch-icon.png">
+<link rel="stylesheet" href="earthory.css">
+<link rel="stylesheet" href="earthory-motion.css">
+<link rel="stylesheet" href="earthory-pages.css">
+</head>
+<body>
+<div class="site-shell">
+
+<header class="nav">
+  <a class="brand" href="index.html"><img class="brand-mark" src="assets/earthory-mark.png" alt="">Earthory</a>
+  <nav>
+    <a href="hardware.html">Earthory One</a>
+    <a href="app.html">Earthory App</a>
+    <a href="how.html">工作方式</a>
+    <a href="privacy.html">隐私与安全</a>
+    <a href="pricing.html" aria-current="page">计划和定价</a>
+    <a href="careers.html">加入我们</a>
+  </nav>
+  <a class="nav-cta" href="download.html">下载</a>
+</header>
+
+<main class="subpage">
+
+  <!-- ===== 首屏：标题 + 两个切换 ===== -->
+  <section class="subhero slim-hero pricing-hero">
+    <div>
+      <a class="back-link" href="index.html"><svg class="ic" viewBox="0 0 256 256"><use href="#eo-arrow-left"/></svg> 返回首页</a>
+      <span class="eyebrow">PRICING</span>
+      <h1>Choose Your <span>Memory</span> Plan</h1>
+      <p class="pr-sub">选择适合你的记忆方案。按场景、存储容量和记忆保存周期灵活选择。</p>
+
+      <!-- 月付 / 年付。年付价由 yearly_months_charged 算出，不另外配置。 -->
+      <div class="pr-cycle" role="group" aria-label="计费周期">
+        <button type="button" class="is-on" data-cycle="monthly" aria-pressed="true">Monthly<i>月付</i></button>
+        <button type="button" data-cycle="yearly" aria-pressed="false">Yearly<i>年付</i></button>
+      </div>
+
+      <!-- 场景切换。桌面端高亮对应的卡，手机端只显示当前这一张。 -->
+      <div class="pr-scenes" role="tablist" aria-label="使用场景"></div>
+    </div>
+  </section>
+
+  <!-- ===== 套餐卡 ===== -->
+  <section class="plain-section tight" id="plans" aria-labelledby="plans-h">
+    <h2 id="plans-h" class="sr-only">套餐</h2>
+    <div class="pr-cards" aria-live="polite">
+      <p class="pr-loading">正在读取价格…</p>
+    </div>
+    <noscript>
+      <p class="pr-note">这一页的价格需要 JavaScript 才能显示。
+        直接写信给销售：<a href="mailto:sales@earthory.com">sales@earthory.com</a>。</p>
+    </noscript>
+    <p class="pr-note pr-disclaimer"></p>
+  </section>
+
+  <!-- ===== 自定义配置器 ===== -->
+  <section class="plain-section tinted" id="build" aria-labelledby="build-h">
+    <h2 id="build-h">Build Your Memory Plan</h2>
+    <p>五档套餐都不合适的话，按自己的现场配。左边调，右边实时出价。</p>
+    <div class="pr-builder">
+      <form class="pr-controls" aria-label="自定义配置"></form>
+      <aside class="pr-quote" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <!-- ===== 存储与记忆周期 ===== -->
+  <section class="plain-section" id="retention" aria-labelledby="retention-h">
+    <h2 id="retention-h">原始内容会过期，记忆不会</h2>
+    <p>这是 Earthory 和录像机最大的差别。原始画面按你设定的周期到期处理，
+      而从画面里理解出来的东西——人、地点、事件、关系——可以留得更久。</p>
+    <div class="pr-timelines"></div>
+  </section>
+
+  <!-- ===== 超额加购 ===== -->
+  <section class="plain-section tinted" id="addons" aria-labelledby="addons-h">
+    <h2 id="addons-h">Need More?</h2>
+    <p>套餐用满了可以单独加。加购按月计费，随时可以退。</p>
+    <div class="pr-addons"></div>
+  </section>
+
+  <!-- ===== 结尾 ===== -->
+  <section class="join-close">
+    <span class="eyebrow">STILL DECIDING</span>
+    <h2>不确定该选哪一档？</h2>
+    <p>把你的现场情况说一下——多大面积、几个点位、要留多久。<br>
+      我们按实际需要给一份配置和报价，不合适就直说。</p>
+    <p style="margin-top:26px">
+      <button type="button" class="track-cta" data-sales-build="1">
+        说说你的现场
+        <svg class="ic" viewBox="0 0 256 256"><use href="#eo-arrow-right"/></svg>
+      </button>
+    </p>
+    <div class="sign">EARTHORY · SINGAPORE</div>
+  </section>
+
+</main>
+
+<footer>
+  <a class="brand" href="index.html"><img class="brand-mark" src="assets/earthory-mark.png" alt="">Earthory</a>
+  <span>&copy; 2026 Earthory</span>
+  <div>
+    <a href="hardware.html">Earthory One</a>
+    <a href="app.html">Earthory App</a>
+    <a href="how.html">工作方式</a>
+    <a href="privacy.html">隐私与安全</a>
+    <a href="pricing.html">计划和定价</a>
+    <a href="download.html">下载</a>
+    <a href="careers.html">加入我们</a>
+    <a href="mailto:hello@earthory.com">联系我们</a>
+  </div>
+</footer>
+
+</div>
+
+<!-- 手机端固定在底部的价格条，由 JS 控制显隐 -->
+<div class="pr-sticky" hidden>
+  <div>
+    <b></b>
+    <span></span>
+  </div>
+  <button type="button" class="primary pr-sticky-cta" data-sales-build="1">Continue</button>
+</div>
+
+<script src="earthory-motion.js"></script>
+<script src="earthory-pages.js"></script>
+</body>
+</html>
