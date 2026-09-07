@@ -1,12 +1,28 @@
-# 「加入我们」表单后端
+# 表单后端
 
-careers.html 的表单收件后端。一张 Postgres 表 + 一个 Edge Function 当 API。
+网站上两条收件线，各自一张 Postgres 表 + 一个 Edge Function 当 API。
 
 ```
 supabase/
-  migrations/20260902000000_join_submissions.sql   建表 + RLS
+  migrations/20260902000000_join_submissions.sql   招聘/合作：建表 + RLS
   functions/join/index.ts                          POST /join
+
+  migrations/20260907000000_sales_enquiries.sql    销售线索：建表 + RLS
+  functions/sales/index.ts                         POST /sales
 ```
+
+## 为什么是两张表不是一张
+
+`join_submissions` 收的是「加入我们」——求职、KOL、媒体、研究合作。
+`sales_enquiries` 收的是定价页上想买东西的人。
+
+这两拨人跟进的部门不同、要问的字段不同、状态机也不同：招聘看的是有没有
+回复，销售看的是从报价到成单走到哪一步。混在一张表里，两边的人打开后台
+都得先过滤掉一半不相干的行；而且销售线索要带套餐配置快照（多少存储、
+留多久、几台设备、页面上显示的预估价），塞进招聘表只会让两边都变脏。
+
+一开始定价页的 CTA 确实是指向 `careers.html#contact` 的，那是个错误——
+想买东西的人被丢进招聘表单，第一个问题还是「你想以什么身份加入」。
 
 ## 为什么不让前端直连数据库
 
@@ -32,29 +48,33 @@ npm i -D supabase                     # 装到项目里，不用全局装
 npx supabase login
 npx supabase link --project-ref <你的项目 ref>
 
-# 1. 建表
+# 1. 建表（两张一起）
 npx supabase db push
 
-# 2. 配置环境变量
+# 2. 配置环境变量（两个函数共用同一套 secrets）
 npx supabase secrets set ALLOWED_ORIGINS="https://earthory.com,https://www.earthory.com"
 npx supabase secrets set IP_SALT="$(openssl rand -hex 32)"
 npx supabase secrets set MAX_PER_HOUR="5"
+npx supabase secrets set SALES_MAX_PER_HOUR="8"
 
 # 3. 部署接口（--no-verify-jwt：公开表单本来就要匿名可提交）
-npx supabase functions deploy join --no-verify-jwt
+npx supabase functions deploy join  --no-verify-jwt
+npx supabase functions deploy sales --no-verify-jwt
 ```
 
 `SUPABASE_URL` 和 `SUPABASE_SERVICE_ROLE_KEY` 是平台自动注入的，不用手动配。
 
 ## 接上前端
 
-部署完拿到函数地址，填进 `earthory-pages.js` 顶部：
+部署完拿到函数地址，填进 `earthory-pages.js`：
 
 ```js
-var JOIN_API = 'https://<项目 ref>.supabase.co/functions/v1/join';
+var JOIN_API  = 'https://<项目 ref>.supabase.co/functions/v1/join';   // 第 4 节
+var SALES_API = 'https://<项目 ref>.supabase.co/functions/v1/sales';  // 第 5 节
 ```
 
-留空的话页面不会坏——会退回「把内容整理好让对方自己复制发邮件」的模式。
+`JOIN_API` 留空的话页面不会坏——会退回「把内容整理好让对方自己复制发邮件」的模式。
+`SALES_API` 打不通时销售窗口会显示错误并提示写信到 sales@earthory.com。
 
 ## 环境变量
 
@@ -62,7 +82,8 @@ var JOIN_API = 'https://<项目 ref>.supabase.co/functions/v1/join';
 |---|---|---|
 | `ALLOWED_ORIGINS` | 是 | 允许的来源，逗号分隔。**不配就拒绝所有请求**，不做通配 |
 | `IP_SALT` | 是 | IP 哈希的盐。不配则不限流，日志里会有警告 |
-| `MAX_PER_HOUR` | 否 | 同一 IP 每小时上限，默认 5 |
+| `MAX_PER_HOUR` | 否 | `/join` 同一 IP 每小时上限，默认 5 |
+| `SALES_MAX_PER_HOUR` | 否 | `/sales` 同一 IP 每小时上限，默认 8。放宽是因为一个公司里几个人分别来问是正常的 |
 
 本地开发时要把 `http://localhost:8000` 之类加进 `ALLOWED_ORIGINS`。
 注意直接双击打开 HTML（`file://`）时 Origin 是 `null`，会被拒绝——
@@ -74,15 +95,18 @@ var JOIN_API = 'https://<项目 ref>.supabase.co/functions/v1/join';
 
 1. **蜜罐** — 表单里有个移出视口的 `company_website` 字段，真人看不到。
    填了就丢弃，但**返回 200** ——让机器人以为成功了，不去换招式重试。
-2. **限流** — 同一 IP 哈希每小时最多 `MAX_PER_HOUR` 条。
-3. **白名单校验** — `relation` 必须是表单里那 11 个值之一；
-   所有字段有长度上限，数据库层还有一遍 CHECK 约束。
+2. **限流** — 同一 IP 哈希每小时最多 `MAX_PER_HOUR` / `SALES_MAX_PER_HOUR` 条。
+3. **白名单校验** — `/join` 的 `relation` 必须是表单里那 11 个值之一；
+   `/sales` 的 `plan`、`billing_cycle`、`ai_tier`、`timeline` 同样走白名单，
+   储存/设备/用户等数值字段自己解析并夹在范围内（那几个是用户能改的输入框，
+   不能信前端传上来的数）。所有字段有长度上限，数据库层还有一遍 CHECK 约束。
 
 量大了再上 Cloudflare Turnstile，在 `Deno.serve` 开头加一次校验即可。
 
 ## PDPA
 
-表单收的是个人数据，新加坡《个人数据保护法》适用。已经做的：
+两张表收的都是个人数据（销售那张还多了电话和职位），
+新加坡《个人数据保护法》适用。已经做的：
 
 - 提交前必须勾选同意，`consent` 字段存进库里，需要举证时拿得出来
 - 勾选文案写明了用途、不外传、以及如何要求查阅或删除
@@ -91,12 +115,32 @@ var JOIN_API = 'https://<项目 ref>.supabase.co/functions/v1/join';
 还需要你们做的：
 
 - **保留期限**。目前没有自动清理。定个期限（比如 24 个月），
-  用 `pg_cron` 定期删除，或人工清。
+  用 `pg_cron` 定期删除，或人工清。**两张表都要**。
 - **删除请求**。有人来信要求删除时，在后台按 email 找到删掉。
+  注意同一个人可能两张表里都有（先投过简历后来又来问价），
+  处理删除请求时两张表都要查。
 - 上线前请法务过一遍勾选处的措辞。
 
 ## 查看数据
 
-Supabase 后台 → Table Editor → `join_submissions`。
+Supabase 后台 → Table Editor。
 
-`status` 字段可以当工作流用：`new` / `reading` / `replied` / `archived` / `spam`。
+**`join_submissions`** —— 招聘与合作。
+`status`：`new` / `reading` / `replied` / `archived` / `spam`。
+
+**`sales_enquiries`** —— 定价页的销售线索。
+`status` 是一条完整的销售流水线：
+`new` / `contacted` / `qualified` / `quoted` / `won` / `lost` / `spam`，
+另有 `owner` 字段给销售自己填跟进人。
+
+窗口只收四个字段：`name`、`email`、`phone`（联系方式）、`message`（用途）。
+公司、职位、地区、时间范围刻意没收——配置快照已经说清楚客户要什么，
+再多问几屏只会拉低填写率。要加回来：表加一列、函数加一行 `clean()`、
+窗口加一个 input，三处。
+
+每条销售线索都带着客户提交时页面上的配置快照——
+`plan`、`storage_gb`、`retention_days`、`memory_years`、`devices`、`seats`、
+`ai_tier`、`est_price`、`billing_cycle`。存快照而不是外键是有意的：
+以后改价格改套餐，历史线索仍然能还原客户当时看到的是什么。
+
+`est_price` 是**页面上显示的预估价，不是最终报价**，别直接拿去开发票。

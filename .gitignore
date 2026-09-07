@@ -1,0 +1,15 @@
+# 站点本身是纯静态的，不需要构建。
+# npm 在这里只有一个用途：装 Supabase CLI，用来建表和部署 Edge Function。
+
+node_modules/
+npm-debug.log*
+
+# Supabase CLI 的本地状态。里面有临时凭据，不进版本库。
+# 注意 supabase/config.toml 是要提交的（项目配置，无密钥）。
+supabase/.temp/
+supabase/.branches/
+
+# 密钥永远不进仓库。service_role key 尤其。
+.env
+.env.*
+!.env.example

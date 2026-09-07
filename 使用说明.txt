@@ -216,6 +216,146 @@ stopPropagation()，面板自己的关闭逻辑收不到事件，所以在那个
 earthory.css 是压缩过的构建产物不要动，改就改 earthory-pages.css。
 
 ────────────────────────────────
+定价页（pricing.html）
+────────────────────────────────
+最重要的一条：**页面里一个价格数字都没有写死。**
+全部来自 pricing-config.json，运行时 fetch 回来再渲染。
+改价格只改那个 JSON，不用碰 HTML，也不用改任何代码。
+
+  pricing-config.json   价格、套餐、配置器选项、加购、时间轴文案
+  pricing.html          只有骨架和挂载点，没有数字
+  earthory-pages.js     第 5 节，读配置 + 渲染 + 算价
+  earthory-pages.css    末尾「定价页」那一段，只管样子
+
+以后要把配置挪到 Supabase 或别的后台，改 earthory-pages.js 里
+CONFIG_URL 那一行就行，返回同样结构的 JSON 即可。
+
+── 算价公式 ──
+配置器的价格由 pricing-config.json 的 formula 段算出：
+
+  ( 场景基础费
+    + 储存费（阶梯费率，越大越便宜）× 保存周期系数
+    + AI 记忆保存费
+    + 超出的设备数 × 单价
+    + 超出的用户数 × 单价 ) × AI 处理量倍率
+
+这套系数是照着五档标价套餐拟合的，最大偏差 0.9%：
+
+  Personal    公式 12.80  标价 12.90
+  Family      公式 30.17  标价 29.90
+  Business    公式 98.57  标价 99.00
+  Industrial  公式 299.74 标价 299.00
+
+**改 formula 里任何系数之后，一定要复核这五档还对不对得上**，
+否则会出现「照着套餐配一遍，配置器报价却差很多」的尴尬。
+复核脚本在 scratchpad/fit.py，跑一下就知道。
+
+任何一个维度选了 Custom / Enterprise（配置里值为 null），
+整块就切换成「按需报价」，不出数字——瞎报一个价比不报更糟。
+
+── 和原始需求不一致的两处 ──
+1. 需求里那个例子「Business 5TB / 180天 / 5年 / 12设备 / 10用户 = S$189」
+   和需求自己给的套餐价对不上。按 2TB=99、10TB=299 做线性插值，
+   5TB 上限约 174，有阶梯折扣只会更低。公式算出来是 146.37。
+   现在按 146 走。要改成 189 的话，2TB→10TB 那档费率得大幅上调，
+   Industrial 就会从 299 涨到 430 左右。这是个定价决策，不是代码问题。
+
+2. 设备数和用户数用的是数字输入框，不是需求里列的下拉选项。
+   因为需求自己的例子是「12 台设备」，而给的下拉是 1/2/5/10/20/50/100，
+   根本选不出 12。数字框两边都能满足。
+
+── 页面结构 ──
+  首屏          标题 + 月付/年付 + 五个场景切换
+                （导航里这一项叫「计划和定价」，五个静态页 + motion.js
+                  的 NAV_EXTRA / FOOT_EXTRA 共 12 处，改名要一起改）
+  套餐卡        五张，第一眼只给五个数字（价格 + 四项配额）
+                功能明细收在 See all features 里，默认折叠
+  配置器        左边六个维度，右边实时报价（桌面端 sticky 跟随）
+  保存周期      两条时间轴：原始内容会过期，AI 记忆留得更久
+  加购          四组，价格同样来自配置文件
+  结尾          引导到 careers.html#contact 那张表
+
+年付价不单独配置，由 yearly_months_charged 算出来
+（现在是 10，即付 10 个月用 12 个月）。卡面显示折算后的月费，
+下面一行写全年总额。
+
+── 手机端 ──
+不一次摆五张卡。顶部场景切换条横向滚动，下面只显示当前那一张。
+配置器下方钉一条固定价格条，改选项立刻能看到钱怎么变，
+不用滚回去找。join-close 因此留了 130px 底部内边距让开它。
+
+── 本地预览 ──
+必须用 http 起服务，直接双击 HTML 打不开：
+
+    python -m http.server 8000
+
+然后 http://localhost:8000/pricing.html
+（file:// 协议下浏览器会拦掉 fetch 读配置文件，页面会显示提示。）
+
+── 待办 ──
+· 价格全部是草稿，pricing-config.json 里 _status 标了 DRAFT，上线前必须复核
+· 加购那四组价格是按公式系数倒推的占位值
+· 没有接支付。Start / Continue / Talk to Sales 全部打开销售窗口（见下节）
+
+────────────────────────────────
+销售对接窗口
+────────────────────────────────
+定价页上**所有** CTA 都打开这个窗口，不跳任何别的页面。
+
+  套餐卡上的 Start / Talk to Sales / Contact Earthory
+  配置器右侧的 Continue / Request Quote
+  手机端底部固定条上的按钮
+  结尾那句「说说你的现场」
+  以及从别处链过来的 pricing.html#sales
+
+一开始我把这些都指向了 careers.html#contact，那是错的：
+想买东西的人被丢进招聘表单，第一个问题还是「你想以什么身份加入」。
+现在是独立窗口 + 独立接口 + 独立数据表，和招聘完全不共用。
+
+  前端      earthory-pages.js 第 5 节里的 salesModal / openSales / submitSales
+  样式      earthory-pages.css 末尾「销售对接窗口」
+  接口      supabase/functions/sales/index.ts   POST /sales
+  表        supabase/migrations/20260907000000_sales_enquiries.sql
+
+窗口只问四件事：**名字、邮箱、联系方式、用途**。
+一开始我摆了公司、职位、地区、什么时候要用上，八个字段一屏，
+那是在赶人走——配置快照那一块已经把「客户要什么」说清楚了。
+
+窗口会把用户**刚才配的东西一起带过去**——哪一档、多少存储、留多久、
+几台设备几个用户、月付还是年付、页面上显示的预估价。销售拿到线索时
+这些都在，不用回头再问一遍。从套餐卡打开就带那张卡的配置，
+从配置器打开就带配置器当前的值。
+
+同意勾选不能删，那是 PDPA 的举证依据。蜜罐字段用户看不见。
+
+要加回某个字段（比如公司名）：表加一列、Edge Function 加一行 clean()、
+窗口的 innerHTML 里加一个 input，三处，别漏。
+
+数据库里存的是**快照不是外键**：以后改价格改套餐，历史线索仍然能还原
+客户当时看到的是什么。est_price 是页面上的预估价，不是最终报价。
+
+安全模型和 /join 完全一致：前端不持有任何密钥，表 RLS 拒绝一切，
+只有 Edge Function 用 service_role 写得进去。蜜罐、IP 哈希限流、
+CORS 白名单一样不少。数值字段（存储/设备/用户）在服务端重新解析并
+夹在范围内——那几个在页面上是用户能改的输入框，传上来的数不能信。
+
+限流用的是 SALES_MAX_PER_HOUR（默认 8），比招聘的 5 放宽，
+因为一个公司里几个人分别来问价是正常的。
+
+后台看线索：Table Editor → sales_enquiries。
+status 是一条完整的销售流水线：
+new / contacted / qualified / quoted / won / lost / spam，
+另有 owner 字段给销售填跟进人。
+
+**部署提醒**：新表和新函数都还没上线，需要跑
+    npx supabase db push
+    npx supabase functions deploy sales --no-verify-jwt
+    npx supabase secrets set SALES_MAX_PER_HOUR="8"
+
+**还需要**：sales@earthory.com 这个邮箱地址在窗口的错误提示和 noscript
+兜底里都出现了，但 earthory.com 目前没有 MX 记录，这个邮箱收不到信。
+
+────────────────────────────────
 加入我们这一页（careers.html）
 ────────────────────────────────
 「招聘」已全站改名为「加入我们」。改动落在 4 个静态页的导航与页脚，

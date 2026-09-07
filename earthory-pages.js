@@ -262,4 +262,659 @@
       });
     });
   }
+
+  /* ============================================================
+     5. 定价页（pricing.html）
+
+     页面里一个价格数字都没有写死——全部来自 pricing-config.json，
+     运行时 fetch。改价格只改那个文件，不用碰 HTML，也不用发版。
+     以后要挪到 Supabase 之类的后台，只改下面 CONFIG_URL 一行。
+
+     配置器的算价公式也在同一个文件的 formula 段里。那套系数拟合了
+     五档标价套餐，最大偏差 0.9%；改系数请同时复核这五档还对不对得上。
+     ============================================================ */
+  var CONFIG_URL = 'pricing-config.json';
+  var SALES_API = 'https://bferzqerttgoiznbcopo.supabase.co/functions/v1/sales';
+
+  var pricingRoot = document.querySelector('.pr-cards');
+  if (pricingRoot) {
+    var CFG = null;
+    var cycle = 'monthly';
+    var scene = 'personal';
+
+    /* ---------- 工具 ---------- */
+
+    function money(n) {
+      if (n == null || isNaN(n)) return null;
+      var r = Math.round(n * 100) / 100;
+      /* 12.90 要显示两位小数，99 就不用拖个 .00 */
+      return CFG.symbol + (r % 1 === 0 ? r.toFixed(0) : r.toFixed(2));
+    }
+
+    /* 年付：按 yearly_months_charged 个月的钱买 12 个月，
+       卡面上仍然显示「每月多少」，另起一行写清全年总额。 */
+    function cycled(monthly) {
+      if (monthly == null) return null;
+      if (cycle === 'monthly') return monthly;
+      return monthly * CFG.yearly_months_charged / 12;
+    }
+
+    function yearlyTotal(monthly) {
+      return monthly == null ? null : monthly * CFG.yearly_months_charged;
+    }
+
+    function esc(s) {
+      return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function el(tag, cls, html) {
+      var n = document.createElement(tag);
+      if (cls) n.className = cls;
+      if (html != null) n.innerHTML = html;
+      return n;
+    }
+
+    var ARROW = '<svg class="ic" viewBox="0 0 256 256"><use href="#eo-arrow-right"/></svg>';
+    var TICK = '<svg class="ic" viewBox="0 0 256 256"><use href="#eo-check-circle"/></svg>';
+
+    /* ---------- 阶梯储存费 ---------- */
+    /* 按边际费率算，和云厂商的阶梯计价一个道理：
+       前 100GB 一个价，超出的部分逐级便宜。 */
+    function storageCost(gb) {
+      var tiers = CFG.formula.storage_tiers, total = 0, prev = 0;
+      for (var i = 0; i < tiers.length; i++) {
+        var cap = tiers[i].up_to_gb, rate = tiers[i].per_gb;
+        if (cap == null || gb <= cap) { total += (gb - prev) * rate; break; }
+        total += (cap - prev) * rate;
+        prev = cap;
+      }
+      return total;
+    }
+
+    /* ---------- 算价 ---------- */
+    /* 任何一个维度选了 Custom / Enterprise（值为 null）就不出价，
+       整块切换成「按需报价」——瞎报一个数比不报更糟。 */
+    function calc(cfg) {
+      if (cfg.gb == null || cfg.days == null || cfg.devices == null || cfg.users == null) return null;
+      var f = CFG.formula;
+      var base = f.scene_base[cfg.scene];
+      if (base == null) return null;               /* enterprise 没有基础费，只报价 */
+
+      var retention = f.retention_factor[String(cfg.days)];
+      var aiFee = f.ai_memory_fee[String(cfg.years)];
+      if (retention == null || aiFee == null) return null;
+
+      var extraDev = Math.max(0, cfg.devices - f.included_devices[cfg.scene]);
+      var extraUsr = Math.max(0, cfg.users - f.included_users[cfg.scene]);
+      var mult = f.ai_processing_multiplier[cfg.tier] || 1;
+
+      return (base
+        + storageCost(cfg.gb) * retention
+        + aiFee
+        + extraDev * f.device_price
+        + extraUsr * f.user_price) * mult;
+    }
+
+    /* ---------- 场景切换条 ---------- */
+    /* 只在第一次建按钮，之后原地改状态。
+       每次点击都重建 innerHTML 的话，被点的那个按钮会被换成新节点，
+       键盘用户按完 Enter 焦点就没了。 */
+    function renderScenes() {
+      var host = document.querySelector('.pr-scenes');
+      if (!host) return;
+
+      if (!host.children.length) {
+        CFG.scenes.forEach(function (s) {
+          var b = el('button', '', esc(s.name) + '<i>' + esc(s.zh) + '</i>');
+          b.type = 'button';
+          b.setAttribute('role', 'tab');
+          b.dataset.scene = s.id;
+          host.appendChild(b);
+        });
+      }
+
+      var btns = host.children;
+      for (var i = 0; i < btns.length; i++) {
+        var on = btns[i].dataset.scene === scene;
+        btns[i].classList.toggle('is-on', on);
+        btns[i].setAttribute('aria-selected', on ? 'true' : 'false');
+      }
+    }
+
+    /* ---------- 套餐卡 ---------- */
+    /* 第一眼只给五个数字：价格 + 四项核心配额。
+       功能明细收在 See all features 后面，第一屏塞满了反而什么都记不住。 */
+    function renderCards() {
+      pricingRoot.innerHTML = '';
+      CFG.plans.forEach(function (p) {
+        var card = el('article', 'pr-card' + (p.featured ? ' is-featured' : '')
+          + (p.plan_id === scene ? ' is-active' : ''));
+        card.dataset.plan = p.plan_id;
+
+        var priceHtml;
+        if (p.is_custom || p.monthly_price == null) {
+          priceHtml = '<div class="pr-price"><b>' + esc(p.price_label || 'Custom') + '</b></div>'
+            + '<div class="pr-price-sub">' + esc(p.price_label_zh || '') + '</div>';
+        } else {
+          var per = cycled(p.monthly_price);
+          priceHtml = '<div class="pr-price"><b>' + money(per) + '</b><span>/ month</span></div>'
+            + '<div class="pr-price-sub">'
+            + (cycle === 'yearly'
+                ? '年付 ' + money(yearlyTotal(p.monthly_price)) + ' / 年'
+                : '按月计费，随时可停')
+            + '</div>';
+        }
+
+        var facts = p.headline.map(function (h) {
+          return '<div><b>' + esc(h.value) + '</b><span>' + esc(h.label)
+            + '<i>' + esc(h.label_zh) + '</i></span></div>';
+        }).join('');
+
+        var scenes = p.scene_type.map(function (t) {
+          return '<span>' + esc(t) + '</span>';
+        }).join('');
+
+        var feats = p.features.map(function (t) {
+          return '<li>' + TICK + esc(t) + '</li>';
+        }).join('');
+
+        card.innerHTML =
+          '<header>'
+          + '<h3>' + esc(p.plan_name) + '<i>' + esc(p.plan_name_zh) + '</i></h3>'
+          + '<p class="pr-tagline">' + esc(p.tagline_zh) + '</p>'
+          + '</header>'
+          + priceHtml
+          + '<div class="pr-facts">' + facts + '</div>'
+          + '<div class="pr-scenetags">' + scenes + '</div>'
+          + '<button type="button" class="pr-cta' + (p.cta_type === 'quote' ? ' is-quote' : '')
+          + '" data-sales-plan="' + esc(p.plan_id) + '">' + esc(p.cta) + ARROW + '</button>'
+          + '<details class="pr-feats"><summary>See all features<i>全部功能</i></summary>'
+          + '<ul>' + feats + '</ul></details>';
+
+        pricingRoot.appendChild(card);
+      });
+
+      var note = document.querySelector('.pr-disclaimer');
+      if (note) note.textContent = CFG.disclaimer_zh;
+    }
+
+    /* ---------- 配置器 ---------- */
+
+    /* 设备数和用户数用数字输入框，不用下拉。
+       配置说明里那个例子是「12 台设备」，而给的下拉选项是
+       1/2/5/10/20/50/100，根本选不出 12 来。 */
+    function control(label, zh, id, optsHtml, isNumber, value, max) {
+      if (isNumber) {
+        return '<label class="pr-ctl"><span>' + esc(label) + '<i>' + esc(zh) + '</i></span>'
+          + '<input type="number" id="' + id + '" min="1" max="' + max + '" step="1" value="' + value + '"></label>';
+      }
+      return '<label class="pr-ctl"><span>' + esc(label) + '<i>' + esc(zh) + '</i></span>'
+        + '<select id="' + id + '">' + optsHtml + '</select></label>';
+    }
+
+    function opts(list, key, selected) {
+      return list.map(function (o, i) {
+        var v = o[key];
+        return '<option value="' + (v == null ? '' : v) + '"'
+          + (i === selected ? ' selected' : '') + '>' + esc(o.label) + '</option>';
+      }).join('');
+    }
+
+    function renderBuilder() {
+      var form = document.querySelector('.pr-controls');
+      if (!form) return;
+      var c = CFG.configurator;
+
+      form.innerHTML =
+        '<label class="pr-ctl"><span>Scene<i>使用场景</i></span><select id="pr-scene">'
+        + CFG.scenes.map(function (s) {
+            return '<option value="' + s.id + '">' + esc(s.name) + ' · ' + esc(s.zh) + '</option>';
+          }).join('')
+        + '</select></label>'
+        + control('Storage', '储存容量', 'pr-gb', opts(c.storage, 'gb', 3), false)
+        + control('Original Content Retention', '原始内容保存周期', 'pr-days', opts(c.original_retention, 'days', 3), false)
+        + control('AI Memory Retention', 'AI 记忆保存周期', 'pr-years', opts(c.ai_memory, 'years', 2), false)
+        + control('Devices', '设备数量', 'pr-dev', '', true, 10, 9999)
+        + control('Users', '用户数量', 'pr-usr', '', true, 10, 9999)
+        + control('AI Processing', 'AI 处理量', 'pr-tier', opts(c.ai_processing, 'tier', 0), false);
+
+      var sceneSel = form.querySelector('#pr-scene');
+      if (sceneSel) sceneSel.value = scene === 'enterprise' ? 'enterprise' : scene;
+      updateQuote();
+    }
+
+    function readBuilder() {
+      function num(id) {
+        var n = document.getElementById(id);
+        if (!n) return null;
+        return n.value === '' ? null : Number(n.value);
+      }
+      return {
+        scene: (document.getElementById('pr-scene') || {}).value || 'business',
+        gb: num('pr-gb'),
+        days: num('pr-days'),
+        years: num('pr-years'),
+        devices: num('pr-dev'),
+        users: num('pr-usr'),
+        tier: (document.getElementById('pr-tier') || {}).value || 'standard'
+      };
+    }
+
+    function labelFor(list, key, val) {
+      var hit = null;
+      list.forEach(function (o) { if (o[key] === val) hit = o.label; });
+      return hit || (val == null ? 'Custom' : String(val));
+    }
+
+    function updateQuote() {
+      var box = document.querySelector('.pr-quote');
+      if (!box || !CFG) return;
+      var cfg = readBuilder();
+      var c = CFG.configurator;
+      var raw = calc(cfg);
+      var per = raw == null ? null : cycled(raw);
+      var sceneName = 'Custom';
+      CFG.scenes.forEach(function (s) { if (s.id === cfg.scene) sceneName = s.name; });
+
+      var rows = [
+        ['Storage', '储存容量', labelFor(c.storage, 'gb', cfg.gb)],
+        ['Original Content', '原始内容', labelFor(c.original_retention, 'days', cfg.days)],
+        ['AI Memory', 'AI 记忆', labelFor(c.ai_memory, 'years', cfg.years)],
+        ['Devices', '设备', cfg.devices == null ? 'Custom' : String(cfg.devices)],
+        ['Users', '用户', cfg.users == null ? 'Custom' : String(cfg.users)],
+        ['AI Processing', 'AI 处理量', labelFor(c.ai_processing, 'tier', cfg.tier)]
+      ].map(function (r) {
+        return '<div><span>' + esc(r[0]) + '<i>' + esc(r[1]) + '</i></span><b>' + esc(r[2]) + '</b></div>';
+      }).join('');
+
+      var priceBlock, cta;
+      if (per == null) {
+        priceBlock = '<div class="pr-quote-price is-custom"><b>Custom</b>'
+          + '<span>这套配置需要单独报价</span></div>';
+        cta = '<button type="button" class="primary" data-sales-build="1">Request Quote</button>';
+      } else {
+        priceBlock = '<div class="pr-quote-price"><b>' + money(per) + '</b><span>/ month</span>'
+          + (cycle === 'yearly'
+              ? '<em>年付 ' + money(yearlyTotal(raw)) + ' / 年</em>'
+              : '<em>按月计费</em>')
+          + '</div>';
+        cta = '<button type="button" class="primary" data-sales-build="1">Continue</button>';
+      }
+
+      box.innerHTML =
+        '<div class="pr-quote-head"><span class="eyebrow">YOUR PLAN</span>'
+        + '<h3>' + esc(sceneName) + '</h3></div>'
+        + '<div class="pr-quote-rows">' + rows + '</div>'
+        + '<div class="pr-quote-label">Estimated Monthly Price<i>预估月费</i></div>'
+        + priceBlock + cta
+        + '<p class="pr-quote-note">' + esc(CFG.disclaimer_zh) + '</p>';
+
+      syncSticky(per, sceneName);
+    }
+
+    /* ---------- 手机端底部价格条 ---------- */
+    /* 配置器在手机上要滚很长，价格在屏幕外就等于没有。
+       钉一条在底部，改一个选项立刻能看到钱怎么变。 */
+    function syncSticky(per, sceneName) {
+      var bar = document.querySelector('.pr-sticky');
+      if (!bar) return;
+      var b = bar.querySelector('b'), s = bar.querySelector('span');
+      var act = bar.querySelector('.pr-sticky-cta');
+      if (per == null) {
+        b.textContent = 'Custom';
+        s.textContent = sceneName + ' · 按需报价';
+        if (act) act.textContent = 'Request Quote';
+      } else {
+        b.textContent = money(per) + ' / month';
+        s.textContent = sceneName + (cycle === 'yearly' ? ' · 年付' : ' · 月付');
+        if (act) act.textContent = 'Continue';
+      }
+    }
+
+    function watchSticky() {
+      var bar = document.querySelector('.pr-sticky');
+      var build = document.getElementById('build');
+      if (!bar || !build || !window.IntersectionObserver) return;
+      /* 只在配置器露出来的时候才钉，别一进页面就挡着 */
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { bar.hidden = !e.isIntersecting; });
+      }, { rootMargin: '-40% 0px -20% 0px' }).observe(build);
+    }
+
+    /* ---------- 保存周期时间轴 ---------- */
+    function renderTimelines() {
+      var host = document.querySelector('.pr-timelines');
+      if (!host) return;
+      var t = CFG.timeline;
+
+      function line(d, cls, extra) {
+        return '<article class="pr-line ' + cls + '">'
+          + '<h3>' + esc(d.title) + '<i>' + esc(d.title_zh) + '</i></h3>'
+          + '<p>' + esc(d.note_zh) + '</p>'
+          + '<div class="pr-track">'
+          + d.marks.map(function (m, i) {
+              return '<span style="--i:' + i + '">' + esc(m) + '</span>';
+            }).join('')
+          + '</div>'
+          + '<div class="pr-kinds">'
+          + d.kinds.map(function (k) { return '<span>' + esc(k) + '</span>'; }).join('')
+          + '</div>' + (extra || '') + '</article>';
+      }
+
+      var endings = '<div class="pr-endings"><b>到期后</b>'
+        + t.original.endings.map(function (e) { return '<span>' + esc(e) + '</span>'; }).join('')
+        + '</div>';
+
+      host.innerHTML = line(t.original, 'is-original', endings)
+        + line(t.memory, 'is-memory', '');
+    }
+
+    /* ---------- 加购 ---------- */
+    function renderAddons() {
+      var host = document.querySelector('.pr-addons');
+      if (!host) return;
+      host.innerHTML = CFG.addons.map(function (g) {
+        return '<article class="pr-addon">'
+          + '<h3>' + esc(g.title) + '<i>' + esc(g.title_zh) + '</i></h3>'
+          + '<ul>' + g.items.map(function (it) {
+              var right = it.from == null
+                ? (it.note ? esc(it.note) : '按需')
+                : (it.from === 0 ? '已含' : 'From ' + money(it.from));
+              return '<li><span>' + esc(it.label) + '</span><b>' + right + '</b></li>';
+            }).join('') + '</ul></article>';
+      }).join('');
+    }
+
+    /* ---------- 销售对接窗口 ---------- */
+    /* 原来所有 CTA 都指向 careers.html#contact——想买东西的人被丢进
+       招聘表单，问的还是「你想以什么身份加入」。这里是独立的窗口，
+       写进独立的 sales_enquiries 表，跟招聘线索完全分开。
+
+       窗口带着用户刚才配的东西一起提交（哪一档、多少存储、留多久、
+       几台设备、页面上显示的预估价），销售不用再回头问一遍。 */
+
+    var salesCtx = null;
+    var salesOpener = null;
+
+    /* 从一张套餐卡取配置快照 */
+    function ctxFromPlan(planId) {
+      var hit = null;
+      CFG.plans.forEach(function (p) { if (p.plan_id === planId) hit = p; });
+      if (!hit) return { plan: planId };
+      return {
+        plan: hit.plan_id,
+        planName: hit.plan_name,
+        billing_cycle: cycle,
+        storage_gb: hit.storage_gb,
+        retention_days: hit.original_retention_days,
+        memory_years: hit.ai_memory_retention_years,
+        devices: hit.device_limit,
+        seats: hit.user_limit,
+        ai_tier: 'standard',
+        est_price: hit.monthly_price == null ? null : cycled(hit.monthly_price)
+      };
+    }
+
+    /* 从配置器取配置快照 */
+    function ctxFromBuilder() {
+      var c = readBuilder();
+      var raw = calc(c);
+      var name = 'Custom';
+      CFG.scenes.forEach(function (x) { if (x.id === c.scene) name = x.name; });
+      return {
+        plan: c.scene,
+        planName: name,
+        billing_cycle: cycle,
+        storage_gb: c.gb,
+        retention_days: c.days,
+        memory_years: c.years,
+        devices: c.devices,
+        seats: c.users,
+        ai_tier: c.tier,
+        est_price: raw == null ? null : cycled(raw)
+      };
+    }
+
+    function ctxSummary(ctx) {
+      var cc = CFG.configurator;
+      var rows = [
+        ['套餐', ctx.planName || ctx.plan],
+        ['储存容量', ctx.storage_gb == null ? '待定' : labelFor(cc.storage, 'gb', ctx.storage_gb)],
+        ['原始内容保存', ctx.retention_days == null ? '待定' : labelFor(cc.original_retention, 'days', ctx.retention_days)],
+        ['AI 记忆保存', ctx.memory_years == null ? '待定' : labelFor(cc.ai_memory, 'years', ctx.memory_years)],
+        ['设备 / 用户', (ctx.devices == null ? '待定' : ctx.devices) + ' / ' + (ctx.seats == null ? '待定' : ctx.seats)],
+        ['计费', ctx.billing_cycle === 'yearly' ? '年付' : '月付'],
+        ['预估月费', ctx.est_price == null ? '按需报价' : money(ctx.est_price)]
+      ];
+      return rows.map(function (r) {
+        return '<div><span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>';
+      }).join('');
+    }
+
+    function salesModal() {
+      var m = document.getElementById('eo-sales');
+      if (m) return m;
+
+      m = el('div', 'eo-sales');
+      m.id = 'eo-sales';
+      m.setAttribute('role', 'dialog');
+      m.setAttribute('aria-modal', 'true');
+      m.setAttribute('aria-labelledby', 'eo-sales-h');
+      m.innerHTML =
+        '<div class="eo-sales-back" data-sales-close="1"></div>'
+        + '<div class="eo-sales-panel">'
+        + '<button type="button" class="eo-sales-x" data-sales-close="1" aria-label="关闭">'
+        + '<svg class="ic" viewBox="0 0 256 256"><use href="#eo-x"/></svg></button>'
+        + '<span class="eyebrow">TALK TO SALES</span>'
+        + '<h2 id="eo-sales-h">聊聊你的现场</h2>'
+        + '<p class="eo-sales-lead">你刚才配的东西会一起发过来，不用再描述一遍。'
+        + '我们看完给一份能落地的配置和报价，不合适会直说。</p>'
+        + '<div class="eo-sales-ctx"></div>'
+        /* 只问四件事。配置那一块已经把「要什么」说清楚了，
+           这里再摆一屏公司职位地区，只会让人关掉窗口。 */
+        + '<form class="eo-sales-form" novalidate>'
+        + '<div class="field-grid">'
+        + '<label class="field">名字 *<input name="name" required autocomplete="name"></label>'
+        + '<label class="field">邮箱 *<input name="email" type="email" required autocomplete="email"></label>'
+        + '</div>'
+        + '<label class="field stack">联系方式'
+        + '<input name="phone" autocomplete="tel" placeholder="电话 / WhatsApp / 微信，留一个方便的">'
+        + '</label>'
+        + '<label class="field stack">用途'
+        + '<textarea name="message" rows="4" placeholder="想用在什么场景、大概多大范围。一两句就行。"></textarea></label>'
+        /* 蜜罐：移出视口而不是 display:none——有些机器人会跳过被隐藏的字段 */
+        + '<div class="hp" aria-hidden="true"><label>公司网站'
+        + '<input name="company_website" tabindex="-1" autocomplete="off"></label></div>'
+        + '<label class="consent"><input type="checkbox" name="consent" required>'
+        + '<span>我同意 Earthory 保存并使用以上信息与我联系。相关说明见'
+        + '<a href="privacy.html">隐私与安全</a>。</span></label>'
+        + '<button type="submit" class="primary">发送</button>'
+        + '<div class="eo-sales-result" hidden></div>'
+        + '</form></div>';
+      document.body.appendChild(m);
+      return m;
+    }
+
+    function closeSales() {
+      var m = document.getElementById('eo-sales');
+      if (!m || !m.classList.contains('is-open')) return;
+      m.classList.remove('is-open');
+      document.documentElement.classList.remove('eo-mnav-lock');
+      if (salesOpener && salesOpener.focus) salesOpener.focus();
+      salesOpener = null;
+      if (location.hash === '#sales') {
+        history.replaceState(null, '', location.pathname + location.search);
+      }
+    }
+
+    function openSales(ctx, opener) {
+      salesCtx = ctx;
+      var m = salesModal();
+      m.querySelector('.eo-sales-ctx').innerHTML = ctxSummary(ctx);
+      var res = m.querySelector('.eo-sales-result');
+      res.hidden = true;
+      res.className = 'eo-sales-result';
+      m.querySelector('.eo-sales-form').hidden = false;
+      m.classList.add('is-open');
+      /* 复用移动端菜单那把滚动锁，样式已经有了 */
+      document.documentElement.classList.add('eo-mnav-lock');
+      salesOpener = opener || null;
+      var first = m.querySelector('input[name="name"]');
+      if (first) first.focus();
+    }
+
+    function submitSales(form) {
+      var m = document.getElementById('eo-sales');
+      var res = m.querySelector('.eo-sales-result');
+      var btn = form.querySelector('button[type="submit"]');
+      var data = {};
+      ['name', 'email', 'phone', 'message', 'company_website']
+        .forEach(function (k) {
+          var n = form.querySelector('[name="' + k + '"]');
+          data[k] = n ? n.value.trim() : '';
+        });
+
+      if (!data.name) { showSales(res, 'is-error', '还差一步', '请填一下名字。'); return; }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+        showSales(res, 'is-error', '还差一步', '邮箱看起来不太对，我们没法回信。'); return;
+      }
+      if (!form.querySelector('[name="consent"]').checked) {
+        showSales(res, 'is-error', '还差一步', '需要先勾选同意，我们才能保存你的联系方式。'); return;
+      }
+
+      /* 配置快照跟着一起走，销售不用回头再问一遍 */
+      data.plan = salesCtx.plan;
+      data.billing_cycle = salesCtx.billing_cycle;
+      data.storage_gb = salesCtx.storage_gb;
+      data.retention_days = salesCtx.retention_days;
+      data.memory_years = salesCtx.memory_years;
+      data.devices = salesCtx.devices;
+      data.seats = salesCtx.seats;
+      data.ai_tier = salesCtx.ai_tier;
+      data.est_price = salesCtx.est_price;
+      data.currency = CFG.currency;
+      data.consent = true;
+      data.source = location.pathname;
+
+      var label = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '正在发送…';
+
+      fetch(SALES_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }).then(function (r) {
+        return r.json().then(function (j) { return { ok: r.ok, body: j }; });
+      }).then(function (r) {
+        if (r.ok && r.body && r.body.ok) {
+          form.hidden = true;
+          showSales(res, 'is-done', '收到了',
+            '我们会在一两个工作日内回你。急的话直接写信到 sales@earthory.com。');
+        } else {
+          showSales(res, 'is-error', '没发出去',
+            (r.body && r.body.error) || '服务暂时没有响应，稍后再试一次。');
+        }
+      }).catch(function () {
+        showSales(res, 'is-error', '没发出去', '网络没有连上。');
+      }).then(function () {
+        btn.disabled = false;
+        btn.textContent = label;
+      });
+    }
+
+    function showSales(res, cls, title, text) {
+      res.className = 'eo-sales-result ' + cls;
+      res.innerHTML = '<h3>' + esc(title) + '</h3><p>' + esc(text) + '</p>';
+      res.hidden = false;
+    }
+
+    /* ---------- 事件 ---------- */
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+
+      var cyc = t.closest ? t.closest('.pr-cycle button') : null;
+      if (cyc) {
+        cycle = cyc.dataset.cycle;
+        var btns = document.querySelectorAll('.pr-cycle button');
+        for (var i = 0; i < btns.length; i++) {
+          var on = btns[i] === cyc;
+          btns[i].classList.toggle('is-on', on);
+          btns[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+        }
+        renderCards();
+        updateQuote();
+        return;
+      }
+
+      /* 套餐卡上的按钮 */
+      var pc = t.closest ? t.closest('[data-sales-plan]') : null;
+      if (pc) { openSales(ctxFromPlan(pc.dataset.salesPlan), pc); return; }
+
+      /* 配置器和底部固定条上的按钮 */
+      var bc = t.closest ? t.closest('[data-sales-build]') : null;
+      if (bc) { openSales(ctxFromBuilder(), bc); return; }
+
+      if (t.closest && t.closest('[data-sales-close]')) { closeSales(); return; }
+
+      var tab = t.closest ? t.closest('.pr-scenes button') : null;
+      if (tab) {
+        scene = tab.dataset.scene;
+        renderScenes();
+        renderCards();
+        var sel = document.getElementById('pr-scene');
+        if (sel && scene !== 'enterprise') { sel.value = scene; updateQuote(); }
+        return;
+      }
+    });
+
+    document.addEventListener('submit', function (e) {
+      if (e.target.classList && e.target.classList.contains('eo-sales-form')) {
+        e.preventDefault();
+        submitSales(e.target);
+      }
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' || e.keyCode === 27) closeSales();
+    });
+
+    document.addEventListener('change', function (e) {
+      if (e.target.closest && e.target.closest('.pr-controls')) updateQuote();
+    });
+    document.addEventListener('input', function (e) {
+      if (e.target.closest && e.target.closest('.pr-controls')) updateQuote();
+    });
+
+    /* ---------- 启动 ---------- */
+    function boot(data) {
+      CFG = data;
+      renderScenes();
+      renderCards();
+      renderBuilder();
+      renderTimelines();
+      renderAddons();
+      watchSticky();
+      /* 从别处链过来的 pricing.html#sales 直接把窗口打开 */
+      if (location.hash === '#sales') openSales(ctxFromBuilder(), null);
+      /* 内容是后插的，让进场动效重新扫一遍 */
+      if (window.EarthoryMotion && window.EarthoryMotion.rescan) window.EarthoryMotion.rescan();
+    }
+
+    fetch(CONFIG_URL, { cache: 'no-cache' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(boot)
+      .catch(function (err) {
+        /* file:// 打开时 fetch 会被浏览器挡掉，本地预览要起个 http 服务 */
+        pricingRoot.innerHTML =
+          '<p class="pr-note">价格暂时读不出来（' + esc(err.message) + '）。'
+          + '本地预览请用 <code>python -m http.server</code> 起一个服务，'
+          + '直接双击 HTML 文件的话浏览器会拦掉配置文件的读取。<br>'
+          + '需要报价可以直接写信到 <a href="mailto:sales@earthory.com">sales@earthory.com</a>。</p>';
+      });
+  }
+
 })();

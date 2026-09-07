@@ -144,6 +144,14 @@
     ['.family', 'up', 90, 0],
     ['.track-cta', 'up', 0, 120],
     ['.join-form fieldset', 'up', 110, 0],
+
+    /* 定价页。内容是 fetch 回来之后才插进 DOM 的，
+       所以必须配合下面暴露的 rescan 一起用。 */
+    ['.pr-card', 'up', 90, 0],
+    ['.pr-line', 'up', 120, 0],
+    ['.pr-addon', 'up', 90, 0],
+    ['.pr-controls', 'up', 0, 0],
+    ['.pr-quote', 'up', 0, 120],
     ['.photo-band', 'stage', 0, 0],
     ['.photo-duo figure', 'zoom', 120, 0],
     ['.plain-section > .eyebrow', 'up', 0, 0],
@@ -420,8 +428,8 @@
 
   /* 首页锚点 → 独立页面 */
   var ANCHOR_MAP = { '/#how': 'how.html', '/#privacy': 'privacy.html' };
-  var NAV_EXTRA = [['careers.html', '加入我们']];
-  var FOOT_EXTRA = [['how.html', '工作方式'], ['privacy.html', '隐私与安全'], ['download.html', '下载'], ['careers.html', '加入我们']];
+  var NAV_EXTRA = [['pricing.html', '计划和定价'], ['careers.html', '加入我们']];
+  var FOOT_EXTRA = [['how.html', '工作方式'], ['privacy.html', '隐私与安全'], ['pricing.html', '计划和定价'], ['download.html', '下载'], ['careers.html', '加入我们']];
 
   function addLink(host, href, text, before) {
     if (host.querySelector('a[href="' + href + '"]')) return;
@@ -826,6 +834,10 @@
     pending = true;
     requestAnimationFrame(function () { pending = false; scan(); });
   }
+
+  /* 给同页的其它脚本用：异步插完内容后调一次，让动效认领新节点。
+     走的是 schedule() 的 rAF 去抖，scan() 本身幂等，多调几次没关系。 */
+  window.EarthoryMotion = { rescan: schedule };
 
   var root = document.getElementById('root');
   if (root) new MutationObserver(schedule).observe(root, { childList: true, subtree: true });
