@@ -1,0 +1,15 @@
+{
+  "name": "earthory-site",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Earthory 官网。纯静态站，不需要构建；npm 在这里只用来装 Supabase CLI。",
+  "scripts": {
+    "serve": "python -m http.server 8000",
+    "db:push": "supabase db push",
+    "deploy:join": "supabase functions deploy join --no-verify-jwt",
+    "deploy:sales": "supabase functions deploy sales --no-verify-jwt"
+  },
+  "devDependencies": {
+    "supabase": "^2.116.0"
+  }
+}

@@ -144,7 +144,7 @@ Deno.serve(async (req) => {
   const name = clean(body.name, LIMITS.name);
   const email = clean(body.email, LIMITS.email);
 
-  if (!name) return json({ ok: false, error: "请填写称呼" }, 400, origin);
+  if (!name) return json({ ok: false, error: "请填写名字" }, 400, origin);
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return json({ ok: false, error: "邮箱格式不正确" }, 400, origin);
   }
