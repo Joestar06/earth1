@@ -1,0 +1,11 @@
+# Earthory — https://www.earthory.com
+# 由 tools/seo.js 生成，改 tools/seo.config.json 后跑 npm run seo
+
+User-agent: *
+Allow: /
+
+# 构建产物和后端源码没有被访问的必要，也不该出现在搜索结果里
+Disallow: /supabase/
+Disallow: /tools/
+
+Sitemap: https://www.earthory.com/sitemap.xml

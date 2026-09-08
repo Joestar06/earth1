@@ -284,7 +284,7 @@ footer div a:hover::after{transform:scaleX(1);transform-origin:left}
 .product-gateway > a:first-child{background-image:none;isolation:isolate}
 .product-gateway > a:first-child::before{
   content:"";position:absolute;inset:0;z-index:0;
-  background:url(assets/earthory-helmet-concept.jpg) center/cover no-repeat;
+  background:url(/assets/earthory-helmet-concept.jpg) center/cover no-repeat;
   transition:transform 1.1s var(--eo-e)
 }
 .product-gateway > a:first-child::after{

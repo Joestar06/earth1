@@ -433,8 +433,8 @@
 
   /* 首页锚点 → 独立页面 */
   var ANCHOR_MAP = { '/#how': 'how.html', '/#privacy': 'privacy.html' };
-  var NAV_EXTRA = [['pricing.html', '计划和定价'], ['careers.html', '加入我们']];
-  var FOOT_EXTRA = [['how.html', '工作方式'], ['privacy.html', '隐私与安全'], ['pricing.html', '计划和定价'], ['download.html', '下载'], ['careers.html', '加入我们']];
+  var NAV_EXTRA = [['pricing.html', "Plans & Pricing"], ['careers.html', "Careers"]];
+  var FOOT_EXTRA = [['how.html', "How It Works"], ['privacy.html', "Privacy & Security"], ['pricing.html', "Plans & Pricing"], ['download.html', "Download"], ['careers.html', "Careers"]];
 
   function addLink(host, href, text, before) {
     if (host.querySelector('a[href="' + href + '"]')) return;
@@ -462,12 +462,12 @@
       if (b.tagName === 'A') return;
       b.setAttribute('data-eo-dl', '');
       b.removeAttribute('data-join');
-      if (b.textContent.trim() !== '下载 App') b.textContent = '下载 App';
+      if (b.textContent.trim() !== "Download App") b.textContent = "Download App";
     });
 
     /* 顶部按钮：首页 / 硬件页 / App 页的「加入早期体验」改成直接去下载页 */
     each('.nav-cta', document, function (b) {
-      if (b.textContent.trim() !== '下载') b.textContent = '下载';
+      if (b.textContent.trim() !== "Download") b.textContent = "Download";
       b.removeAttribute('data-join');
     });
 
@@ -560,35 +560,35 @@
     /* 首页：它帮你记住什么 */
     index: {
       eyebrow: 'IN EVERYDAY LIFE',
-      title: '它记住的，都是这些时刻。',
-      note: '不是那些宏大的人生节点，而是每天都在发生、过后又想不起来的具体片刻。',
+      title: "These are the moments it remembers.",
+      note: "Not the grand milestones, but the specific moments that happen every day and slip away afterwards.",
       items: [
-        ['scene-dog', 'assets/scene-dog.jpg', '一位男士蹲下迎接跑向他的狗',
-         '它今天吃过了吗',
-         '散步、喂食、上一次体检是哪天。每天都在发生的小事，攒成一条完整的记录。'],
-        ['scene-meeting', 'assets/scene-meeting.jpg', '四个人围坐在会议桌旁讨论',
-         '上周答应过什么',
-         '会议里说过的话有据可查，不必再翻聊天记录，也不必凭印象争论。'],
-        ['scene-reunion', 'assets/scene-reunion.jpg', '一对伴侣在客厅回看他们相遇那天的记忆',
-         '我们是怎么认识的',
-         '那天的书店、那场雨，还有你从架上抽走的那本书，都还在原地等着。']
+        ['scene-dog', 'assets/scene-dog.jpg', "A man kneeling to greet his dog running towards him",
+         "Has he eaten today?",
+         "Walks, feeding, the date of the last check-up. Small everyday things add up to one complete record."],
+        ['scene-meeting', 'assets/scene-meeting.jpg', "Four people talking around a meeting table",
+         "What did we agree last week?",
+         "What was said in a meeting has a record, so no scrolling back through chats and no arguing from impressions."],
+        ['scene-reunion', 'assets/scene-reunion.jpg', "A couple in their living room revisiting the day they met",
+         "How did we meet?",
+         "The bookshop that day, the rain, and the book you pulled off the shelf are all still there waiting."]
       ]
     },
     /* 硬件页：这颗设备平时待在哪 */
     hardware: {
       eyebrow: 'WHERE IT LIVES',
-      title: '一颗设备，放在哪儿都在工作。',
-      note: 'Earthory One 不需要你为它腾出位置。它待在你本来就会经过的地方，剩下的事自己完成。',
+      title: "One device, working wherever you put it.",
+      note: "Earthory One does not ask you to make room for it. It sits where you already pass by, and does the rest on its own.",
       items: [
-        ['scene-dog', 'assets/scene-dog.jpg', '玄关柜上的 Earthory One 与迎上来的狗',
-         '玄关的柜子上',
-         '门口这一颗记着谁进出、狗什么时候被喂过、钥匙最后放在哪。'],
-        ['scene-meeting', 'assets/scene-meeting.jpg', '会议桌上的 Earthory One',
-         '会议室的桌上',
-         '一次会开完，谁答应了什么、下一步交给谁，事后都查得到。'],
-        ['scene-training', 'assets/scene-training.jpg', '跑道边的 Earthory One 正在回放这段时间的训练',
-         '跑道边的地上',
-         '一趟训练下来，配速、动作和状态都留着，回家复盘不用靠回忆。']
+        ['scene-dog', 'assets/scene-dog.jpg', "Earthory One on the entryway cabinet as the dog comes to greet",
+         "On the entryway cabinet",
+         "The one by the door keeps track of who came and went, when the dog was fed, and where the keys ended up."],
+        ['scene-meeting', 'assets/scene-meeting.jpg', "Earthory One on a meeting room table",
+         "On the meeting room table",
+         "After a meeting, who promised what and who takes the next step is all searchable."],
+        ['scene-training', 'assets/scene-training.jpg', "Earthory One by the track, replaying the training session",
+         "By the side of the track",
+         "After a session, pace, form and condition are all kept, so reviewing at home does not rely on memory."]
       ]
     }
   };
@@ -632,9 +632,9 @@
      改文案直接改下面的 CATEGORY。
      ========================================================== */
   var CATEGORY = [
-    '互联网索引数字世界。',
-    '大模型连接人类知识。',
-    'Earthory 建立个人现实世界的记忆层。'
+    "The internet indexed the digital world.",
+    "Large models connected human knowledge.",
+    "Earthory builds the memory layer for your personal reality."
   ];
 
   function category() {
@@ -664,9 +664,9 @@
      ┌ 改文案就改 PARTS ┐
      ========================================================== */
   var PARTS =
-    '透明光学球壳 · 环形传感器组件 · 360° 多摄像头阵列 · 红外与深度传感模组 · ' +
-    '周向毫米波雷达阵列 · 麦克风阵列与柔性天线 · 中央惯性测量单元 · 扇形 AI 计算板 · ' +
-    '三片对称弧形电池 · 下半球导热承力骨架 · 统一磁吸接口';
+    "Transparent optical shell · ring sensor assembly · 360° multi-camera array · infrared and depth sensing module · " +
+    "Circumferential mmWave radar array · microphone array and flexible antenna · central inertial measurement unit · sector AI compute boards · " +
+    "Three symmetrical curved cells · lower-hemisphere thermal load frame · unified magnetic interface";
 
   function exploded() {
     var f = (location.pathname.split('/').pop() || '').toLowerCase();
@@ -679,14 +679,14 @@
     /* 背景图没有 alt，给这块加个无障碍描述 */
     orb.setAttribute('role', 'img');
     orb.setAttribute('aria-label',
-      'Earthory One 爆炸图：透明光学球壳、环形传感器组件与下半球导热承力骨架');
+      "Earthory One exploded view: transparent optical shell, ring sensor assembly and lower-hemisphere thermal load frame");
 
     var box = document.createElement('p');
     box.id = 'eo-parts';
     box.className = 'sensor-parts';
     box.innerHTML =
       '<b>TARGET HARDWARE ARCHITECTURE · CONCEPT</b>' + PARTS +
-      '<em>目标硬件架构概念 · 最终配置以工程实现为准</em>';
+      "<em>Target hardware architecture concept · final configuration subject to engineering implementation</em>";
     orb.parentNode.insertBefore(box, orb.nextSibling);
   }
 
@@ -713,13 +713,13 @@
     panel.id = 'eo-mnav';
     panel.setAttribute('role', 'dialog');
     panel.setAttribute('aria-modal', 'true');
-    panel.setAttribute('aria-label', '站点导航');
+    panel.setAttribute('aria-label', "Site navigation");
     /* 面板 z-index 90 盖住 z-index 10 的 .nav，汉堡按钮在底下点不到，
        手机又没有 Esc 键——不给关闭按钮就只能靠点链接离开这一页。 */
     panel.innerHTML =
       '<div class="eo-mnav-top">' +
         '<div class="eo-mnav-brand"></div>' +
-        '<button type="button" class="eo-mnav-x" aria-label="关闭菜单">' +
+        "<button type=\"button\" class=\"eo-mnav-x\" aria-label=\"Close menu\">" +
           '<i></i><i></i>' +
         '</button>' +
       '</div>' +
@@ -750,7 +750,7 @@
     });
 
     /* 下载按钮在移动端本来就看得见，但放进菜单里更完整 */
-    html += '<a class="eo-mnav-cta" href="download.html"><span>下载 App</span>' + arrow + '</a>';
+    html += "<a class=\"eo-mnav-cta\" href=\"download.html\"><span>Download App</span>" + arrow + '</a>';
 
     /* 语言切换也要进菜单：手机上顶部导航是折叠的，
        只放在桌面端等于手机用户切不了语言。 */
@@ -777,7 +777,7 @@
     html.classList.remove('eo-mnav-lock');
     each('.nav-burger', document, function (b) {
       b.setAttribute('aria-expanded', 'false');
-      b.setAttribute('aria-label', '打开菜单');
+      b.setAttribute('aria-label', "Open menu");
     });
     if (mnavOpener && mnavOpener.focus) mnavOpener.focus();
     mnavOpener = null;
@@ -789,7 +789,7 @@
     panel.classList.add('is-open');
     html.classList.add('eo-mnav-lock');
     btn.setAttribute('aria-expanded', 'true');
-    btn.setAttribute('aria-label', '关闭菜单');
+    btn.setAttribute('aria-label', "Close menu");
     mnavOpener = btn;
     var first = panel.querySelector('a');
     if (first) first.focus();
@@ -809,9 +809,9 @@
      这两类留空 alt 才是对的，不是遗漏。
      ========================================================== */
   var ALT = {
-    'beach-memory.png': '母女在海边散步，Earthory 记下的一段回忆',
-    'bike-father.png': '父亲扶着自行车教女儿骑车',
-    'bike-mother.png': '母亲蹲下来为女儿拍照'
+    'beach-memory.png': "A mother and daughter walking the shore, a memory kept by Earthory",
+    'bike-father.png': "A father steadying the bike as his daughter learns to ride",
+    'bike-mother.png': "A mother kneeling to photograph her daughter"
   };
 
   function imageAlt() {
@@ -837,8 +837,8 @@
      直接写「中文」的话，生成 earthory-motion.en.js 时
      会被翻成 "Chinese"，切换按钮就没法用了。
      ========================================================== */
-  var ZH_LABEL = '中文';                        /* 中文 */
-  var ZH_ARIA = '切换到中文';       /* 切换到中文 */
+  var ZH_LABEL = "中文";                        /* 中文 */
+  var ZH_ARIA = "Switch to Chinese";       /* 切换到中文 */
 
   /* 当前页在两种语言下各自的地址。两边是同名文件，
      差别只有 /zh 前缀。 */
@@ -892,7 +892,7 @@
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'nav-burger';
-    btn.setAttribute('aria-label', '打开菜单');
+    btn.setAttribute('aria-label', "Open menu");
     btn.setAttribute('aria-expanded', 'false');
     btn.setAttribute('aria-controls', 'eo-mnav');
     btn.innerHTML = '<i></i><i></i><i></i>';

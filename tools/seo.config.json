@@ -1,0 +1,208 @@
+{
+  "_comment": "全站 SEO 元数据的唯一来源。改 title / description / 域名都改这里，然后跑 npm run seo。",
+  "_updated": "2026-09-08",
+  "origin": "https://www.earthory.com",
+  "_locales_comment": "英文是主语言，占住根目录；中文在 /zh/ 下。x-default 指向英文。静态托管做不了根目录 301，所以英文必须在根，不能放 /en/ 再跳转——那会把最值钱的 URL 浪费在一个跳转页上。",
+  "locales": [
+    {
+      "id": "en",
+      "hreflang": "en",
+      "prefix": "",
+      "htmlLang": "en",
+      "ogLocale": "en_US",
+      "default": true
+    },
+    {
+      "id": "zh",
+      "hreflang": "zh-Hans",
+      "prefix": "/zh",
+      "htmlLang": "zh-CN",
+      "ogLocale": "zh_CN"
+    }
+  ],
+  "_org_comment": "Organization / WebSite 结构化数据。英文品牌描述是给 Google 和 AI 系统读的。",
+  "organization": {
+    "name": "Earthory",
+    "legalName": "EARTHORY PTE. LTD.",
+    "description": "Earthory is an AI memory platform that helps people capture, search, recall and understand their real-world experiences.",
+    "logo": "/assets/earthory-logo.png",
+    "email": "hello@earthory.com",
+    "country": "SG",
+    "locality": "Singapore",
+    "_sameAs_comment": "官方社交账号。我不知道你们真实的账号地址，所以留空——填假 URL 会让 Google 判定这个 Organization 不可信。开通后填进来，跑 npm run seo 就会写进所有页面。",
+    "sameAs": []
+  },
+  "_pages_comment": "每页两种语言各一套 title / description。path 是不带语言前缀的路径，生成时会自动加上。",
+  "pages": [
+    {
+      "file": "index.html",
+      "path": "/",
+      "priority": "1.0",
+      "changefreq": "weekly",
+      "breadcrumb": [],
+      "en": {
+        "title": "Earthory | AI Memory — Search and Recall the Real World",
+        "description": "Earthory is an AI memory platform that helps people capture, search, recall and understand their real-world experiences, connecting people, places, objects, events and moments into memory you can verify."
+      },
+      "zh": {
+        "title": "Earthory｜AI Memory · 记住现实，找回人生",
+        "description": "Earthory 是一家 AI 记忆公司，让现实生活可以被记录、搜索和回忆。把人物、地点、物品、事件和时刻串成你随时能找回、也能核对的记忆。"
+      }
+    },
+    {
+      "file": "hardware.html",
+      "path": "/hardware.html",
+      "priority": "0.9",
+      "changefreq": "monthly",
+      "breadcrumb": [
+        [
+          "Earthory One",
+          "/hardware.html"
+        ]
+      ],
+      "en": {
+        "title": "Earthory One | AI Memory Device for the Real World",
+        "description": "Earthory One is a 360° reality sensing device. Multimodal sensors and local-first processing turn what you see and hear into structured, searchable personal memory."
+      },
+      "zh": {
+        "title": "Earthory One｜AI 记忆硬件，让现实变成能查的记忆",
+        "description": "Earthory One 是一颗 360° 现实感知设备。多模态传感与本地优先处理，把看到听到的变成结构化、可检索的个人记忆。"
+      }
+    },
+    {
+      "file": "app.html",
+      "path": "/app.html",
+      "priority": "0.9",
+      "changefreq": "monthly",
+      "breadcrumb": [
+        [
+          "Earthory App",
+          "/app.html"
+        ]
+      ],
+      "en": {
+        "title": "Earthory App | Search Your Real-World Memories",
+        "description": "Ask your own past a question: where the keys ended up, who was actually there. Earthory App uses semantic search across your timeline to retrieve what really happened."
+      },
+      "zh": {
+        "title": "Earthory App｜搜索并回放你的现实世界记忆",
+        "description": "向自己的过去提问：钥匙最后出现在哪、那天到底谁在场。Earthory App 用语义检索在时间线上找回真实发生过的事。"
+      }
+    },
+    {
+      "file": "how.html",
+      "path": "/how.html",
+      "priority": "0.8",
+      "changefreq": "monthly",
+      "breadcrumb": [
+        [
+          "How It Works",
+          "/how.html"
+        ]
+      ],
+      "en": {
+        "title": "How It Works | Turning Reality into Searchable Memory",
+        "description": "Four layers from reality happening to helping you grow: One for sensing, Hub for local processing, Memory OS for long-term understanding, and ST-VDB, the spatiotemporal vector database."
+      },
+      "zh": {
+        "title": "工作方式｜Earthory 如何把现实变成可搜索的记忆",
+        "description": "从现实发生、形成记忆、长期理解到帮助成长的四层结构：One 现实感知、Hub 本地处理、Memory OS 长期理解，以及时空向量数据库 ST-VDB。"
+      }
+    },
+    {
+      "file": "privacy.html",
+      "path": "/privacy.html",
+      "priority": "0.8",
+      "changefreq": "monthly",
+      "breadcrumb": [
+        [
+          "Privacy & Security",
+          "/privacy.html"
+        ]
+      ],
+      "en": {
+        "title": "Privacy & Security | Data Boundaries | Earthory",
+        "description": "Three sensing modes, six commitments, where data goes, and the privacy centre. No training, no selling. Stop, revoke, audit and forget are all in your hands."
+      },
+      "zh": {
+        "title": "隐私与安全｜Earthory 的数据边界与感知模式",
+        "description": "三种感知模式、六条底线、数据去向与隐私中心。不训练、不出售，停止、撤回、审计、遗忘都在你手上。"
+      }
+    },
+    {
+      "file": "pricing.html",
+      "path": "/pricing.html",
+      "priority": "0.9",
+      "changefreq": "weekly",
+      "breadcrumb": [
+        [
+          "Plans & Pricing",
+          "/pricing.html"
+        ]
+      ],
+      "en": {
+        "title": "Plans & Pricing | Earthory AI Memory",
+        "description": "Choose by setting, storage capacity and retention: five tiers from personal and family to commercial spaces, industrial sites and enterprise, or configure it for your own site."
+      },
+      "zh": {
+        "title": "计划和定价｜Earthory AI 记忆方案",
+        "description": "按场景、存储容量和记忆保存周期选择：个人、家庭、商业空间、工业现场到企业级五档，也可以按自己的现场自定义配置。"
+      }
+    },
+    {
+      "file": "careers.html",
+      "path": "/careers.html",
+      "priority": "0.7",
+      "changefreq": "weekly",
+      "breadcrumb": [
+        [
+          "Careers",
+          "/careers.html"
+        ]
+      ],
+      "en": {
+        "title": "Careers & Partnerships | Earthory Singapore",
+        "description": "Ten partnership tracks and eight role families, based in Singapore. Looking for engineers, researchers, creators, channel partners and product integration partners."
+      },
+      "zh": {
+        "title": "加入我们｜Earthory 新加坡团队与合作通道",
+        "description": "十条合作通道与八个岗位家族，办公室在新加坡。找工程师、研究者、创作者、渠道与产品接入伙伴。"
+      }
+    },
+    {
+      "file": "download.html",
+      "path": "/download.html",
+      "priority": "0.7",
+      "changefreq": "weekly",
+      "breadcrumb": [
+        [
+          "Download",
+          "/download.html"
+        ]
+      ],
+      "en": {
+        "title": "Download Earthory App | Android Preview Build",
+        "description": "The Earthory App Android preview build is open for download. No invite code and no hardware needed. Install it and try asking your own past a question."
+      },
+      "zh": {
+        "title": "下载 Earthory App｜安卓体验版",
+        "description": "Earthory App 安卓体验版开放下载，不需要邀请码也不需要硬件。安装后即可体验向自己的过去提问。"
+      }
+    },
+    {
+      "file": "404.html",
+      "path": "/404.html",
+      "inSitemap": false,
+      "noindex": true,
+      "breadcrumb": [],
+      "en": {
+        "title": "Page Not Found | Earthory",
+        "description": "This address has no content."
+      },
+      "zh": {
+        "title": "页面不存在｜Earthory",
+        "description": "这个地址没有内容。"
+      }
+    }
+  ]
+}
