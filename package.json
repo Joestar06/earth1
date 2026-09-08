@@ -7,9 +7,18 @@
     "serve": "python -m http.server 8000",
     "db:push": "supabase db push",
     "deploy:join": "supabase functions deploy join --no-verify-jwt",
-    "deploy:sales": "supabase functions deploy sales --no-verify-jwt"
+    "deploy:sales": "supabase functions deploy sales --no-verify-jwt",
+    "seo": "node tools/seo.js",
+    "prerender": "node tools/prerender.js",
+    "build": "node tools/i18n-extract.js && node tools/i18n.js && node tools/i18n-pricing.js && node tools/seo.js && node tools/prerender.js",
+    "seo:check": "node tools/seo-check.js",
+    "i18n": "node tools/i18n-extract.js && node tools/i18n.js",
+    "i18n:html": "node tools/i18n-html.js --extract && node tools/i18n-html.js",
+    "i18n:pricing": "node tools/i18n-pricing.js",
+    "check": "node tools/seo-check.js"
   },
   "devDependencies": {
+    "jsdom": "^30.0.1",
     "supabase": "^2.116.0"
   }
 }

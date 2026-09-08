@@ -216,6 +216,165 @@ stopPropagation()，面板自己的关闭逻辑收不到事件，所以在那个
 earthory.css 是压缩过的构建产物不要动，改就改 earthory-pages.css。
 
 ────────────────────────────────
+双语站：英文在根，中文在 /zh/
+────────────────────────────────
+    /            英文（主语言，x-default）
+    /zh/         中文
+    右上角        EN / 中文 两格胶囊，当前那格填色
+
+为什么英文占根目录而不是 /en/：
+静态托管做不了服务端 301，根目录只能是一个真实页面。要让英文当
+主语言，它就必须占住 /。在 / 放一个跳到 /en/ 的 meta refresh，
+等于把全站最值钱的 URL 浪费在一个跳转页上。
+
+一条命令重建整站：
+    npm run build
+
+它依次跑：抽取翻译 → 生成英文 JS → 生成英文定价配置 →
+写入双语 SEO 元数据 → 预渲染两套 React 页。
+改完任何源文件都跑一次，然后 npm run check 自检。
+
+── 翻译是表驱动的，不是维护两份 ──
+中文是源，英文由翻译表生成。三份表：
+
+    tools/i18n/zh.json      JS 里的字符串（4 个文件，333 条）
+    tools/i18n/html.json    静态页的文案（614 条）
+    tools/i18n-pricing.js   定价配置（77 条，直接写在脚本里）
+
+**改英文文案就改表，不要直接改 .en.js 或根目录的 HTML**——
+下次 npm run build 会整个覆盖掉。改中文就改源文件。
+
+为什么不手写两份：两份会立刻开始漂移，改了中文忘了改英文，
+两个月后没人知道哪边是对的。
+
+── 生成出来的文件（不要手改）──
+    earthory.en.js            由 earthory.js 生成
+    earthory-content.en.js
+    earthory-motion.en.js
+    earthory-pages.en.js
+    pricing-config.json       由 pricing-config.zh.json 生成（英文是主，所以不带后缀）
+    根目录的 9 个 .html        由 /zh/ 下同名文件生成
+    robots.txt / sitemap.xml
+
+原始的 earthory.js 一个字节都没动。压缩过的包没有源码，
+做法是构建时按表重写里面的字符串字面量，改完做语法检查。
+
+── 语言切换 ──
+在 earthory-motion.js 的 8.10 节。两种语言是同名文件，
+差别只有 /zh 前缀，所以「另一种语言的同一页」= 加上或去掉前缀。
+
+两个坑，都踩过：
+
+1. ZH_LABEL 那个「中文」在翻译表里映射成它自己。不这么写的话，
+   生成 earthory-motion.en.js 时会被翻成 "Chinese"，
+   英文页上的按钮就没法用了。i18n.js 的残留检查也认识这种
+   恒等翻译，不会误报。
+
+2. 语言链接必须排除出 SPA 路由改写。它的 href 是 "/"，
+   会被 ROUTE 映射成 index.html，从 /zh/ 解析出来是
+   /zh/index.html——点了等于原地不动。现在带 hreflang 的
+   链接一律跳过改写。
+
+── 资源路径必须是绝对的 ──
+earthory.js 里的图片原本是 ./assets/… 相对路径，中文页搬进 /zh/
+之后会解析成 /zh/assets/… 而 404。现在全站统一 /assets/…，
+两套语言树用完全相同的相对内链就能各自正确。
+
+代价：不能再双击 HTML 文件打开，必须起 http 服务（npm run serve）。
+反正读 pricing-config.json 本来就需要。
+
+── 加一种语言要改的地方 ──
+    tools/seo.config.json  的 locales 加一项
+    tools/i18n.js          FILES 加一组输出
+    tools/i18n-html.js     PAGES 加一组
+    翻译表里补该语言的一列（现在的表是「中文 → 英文」单向，
+    多语言要改成「中文 → {en, ja, …}」）
+
+────────────────────────────────
+SEO：三个生成器
+────────────────────────────────
+    npm run seo         生成每页的 head + robots.txt + sitemap.xml
+    npm run prerender   把 React 三页渲染成静态 HTML
+    npm run seo:check   自检
+    npm run build       前两个一起跑
+
+── 1. tools/seo.js ──
+唯一数据源是 tools/seo.config.json。改标题、描述、域名都改那个文件，
+然后跑 npm run seo，它会重写九个 HTML 的 head：
+title / description / canonical / hreflang / Open Graph /
+Twitter Card / JSON-LD，再生成 robots.txt 和 sitemap.xml。
+
+为什么要生成不手写：八个页面手工维护，改一次域名要改八处 canonical、
+八处 og:url，还得记得同步 sitemap。漏一处就是一个指向错地址的
+canonical——那比没有 canonical 更糟。
+
+head 里由它管理的部分夹在 <!-- SEO:BEGIN --> 和 <!-- SEO:END --> 之间，
+**别手改那一段**，下次跑会被整段覆盖。区段外的东西（charset、viewport、
+favicon、样式表）它一概不碰。
+
+JSON-LD 用 @graph 把 Organization / WebSite / WebPage / BreadcrumbList
+串成一张图，彼此用 @id 互相引用，比各写一个 script 更容易让爬虫
+理解它们是同一个实体的不同侧面。
+
+**organization.sameAs 现在是空的**，因为我不知道你们真实的社交账号地址。
+填假 URL 会让 Google 判定这个 Organization 不可信，宁可不写。
+账号开通后把真实链接填进 config，跑一次 seo 就会写进所有页面。
+
+── 2. tools/prerender.js ──
+这个解决的是执行方案第九条点名的问题。
+
+index.html / hardware.html / app.html 原本只有一个空的
+<div id="root"></div> 加一个 290KB 的 JS 包，HTML 里没有标题、
+没有正文、没有链接——SEO 上就是三个空页面。
+
+Googlebot 现在会执行 JS，但 Bingbot、以及 ChatGPT / Perplexity / Claude
+这些 AI 抓取器大多不会。而「让 AI 系统认识 Earthory」正是这轮 SEO 的
+核心目标，不能赌爬虫跑不跑 JS。
+
+做法：用 jsdom 在构建时把页面跑出来，结果写回 #root。浏览器打开时
+React 照常接管重新渲染，视觉零变化；区别只是爬虫和用户第一眼就拿到
+真实内容（LCP 顺带变好）。效果：
+
+    index.html      1069 字节  →  29 KB，1491 字正文
+    hardware.html   1067 字节  →  22 KB，1249 字正文
+    app.html        1085 字节  →  19 KB，1075 字正文
+
+**改了 earthory.js / earthory-content.js / earthory-motion.js 之后
+必须重跑 npm run prerender**，否则静态 HTML 里是旧内容。
+脚本幂等，每次从空壳重新生成，重复跑不会叠加。
+
+── 3. tools/seo-check.js ──
+对着执行方案第十九条，把本地能验的全跑一遍：robots 有没有误伤爬虫、
+sitemap 里的地址是否真实存在、每页 title 是否唯一、canonical / h1 /
+JSON-LD / Open Graph / hreflang 齐不齐、有没有孤岛页面和站内死链、
+HTML 里是不是真有正文。
+
+验不了的（Search Console、PageSpeed、Core Web Vitals、实际收录数）
+它会单独列出来，不会假装通过——那些必须上线后在你们自己的账号里做。
+
+── 顺带修掉的两个会在上线时才炸的 bug ──
+预渲染把它们暴露了出来：
+
+1. earthory.js 渲染的 href 是 /hardware、/app 这类 SPA 路由地址，
+   而这个站是一组静态文件，没有服务端路由。原来只在**点击时**
+   映射到真实文件，对有 JS 的用户够用，但爬虫不点击——它读到
+   href="/hardware" 就直接去抓，拿到 404，而真正的 hardware.html
+   一条内链都收不到。现在在 fixLinks() 里把 href 本身改掉了。
+
+2. STATIC 的判定原来只认 /index.html，而线上首页的路径是 /。
+   判定为 false 时，那个负责翻页的点击拦截器在真实域名的首页上
+   **根本不会注册**，点导航会直接跳到不存在的 /hardware。
+   现在加上了根路径判定。
+
+── 图片 alt ──
+motion.js 的 8.9 节给 React 页的内容图补 alt。
+刻意留空的两类不是遗漏：
+    earthory-mark.png  品牌标识，旁边就跟着「Earthory」文字，
+                       加 alt 会让读屏软件把品牌名念两遍
+    earthory-orb.png   纯装饰的呼吸光球，没有信息量
+seo-check 也按这个规则判定，不会对它们报警。
+
+────────────────────────────────
 定价页（pricing.html）
 ────────────────────────────────
 最重要的一条：**页面里一个价格数字都没有写死。**

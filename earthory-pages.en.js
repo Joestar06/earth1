@@ -33,11 +33,11 @@
 
   function success(modal) {
     modal.innerHTML =
-      '<button class="modal-close" aria-label="关闭">' + icon('eo-x') + '</button>' +
+      "<button class=\"modal-close\" aria-label=\"Close\">" + icon('eo-x') + '</button>' +
       '<div class="success">' + icon('eo-check-circle') +
-      '<h3>已收到</h3>' +
-      '<p>感谢你留下联系方式，我们会尽快与你联系。</p>' +
-      '<button class="primary" type="button">完成</button>' +
+      "<h3>Received</h3>" +
+      "<p>Thanks for reaching out. We will get back to you shortly.</p>" +
+      "<button class=\"primary\" type=\"button\">Done</button>" +
       '</div>';
     modal.querySelector('.modal-close').addEventListener('click', close);
     modal.querySelector('.success .primary').addEventListener('click', close);
@@ -50,18 +50,18 @@
     backdrop.className = 'modal-backdrop';
     backdrop.innerHTML =
       '<div class="modal" role="dialog" aria-modal="true">' +
-        '<button class="modal-close" aria-label="关闭">' + icon('eo-x') + '</button>' +
+        "<button class=\"modal-close\" aria-label=\"Close\">" + icon('eo-x') + '</button>' +
         '<span class="eyebrow">' + (opts.eyebrow || 'STAY IN TOUCH') + '</span>' +
-        '<h3>' + (opts.title || '留下联系方式') + '</h3>' +
-        '<p>' + (opts.note || '新版本、开放名额或工程样机可以体验时，我们会第一时间通知你。') + '</p>' +
+        '<h3>' + (opts.title || "Get in touch") + '</h3>' +
+        '<p>' + (opts.note || "When a new build, an open slot or an engineering prototype becomes available, you will hear from us first.") + '</p>' +
         '<form>' +
-          '<label>称呼<input required placeholder="你的姓名"></label>' +
-          '<label>邮箱或手机<input required placeholder="邮箱或手机号"></label>' +
-          '<label>' + (opts.field || '你最希望找回什么（选填）') +
+          "<label>Name<input required placeholder=\"Your name\"></label>" +
+          "<label>Email or phone<input required placeholder=\"Email or phone number\"></label>" +
+          '<label>' + (opts.field || "What would you most like to get back? (optional)") +
             '<textarea placeholder="' +
-            (opts.placeholder || '例如：家人的重要时刻、工作中的约定、物品放在哪里……') +
+            (opts.placeholder || "For example: family milestones, commitments made at work, where you put something.") +
             '"></textarea></label>' +
-          '<button class="primary" type="submit">提交</button>' +
+          "<button class=\"primary\" type=\"submit\">Submit</button>" +
         '</form>' +
       '</div>';
 
@@ -109,7 +109,7 @@
   for (var i = 0; i < roles.length; i++) {
     var a = roles[i];
     a.href = a.getAttribute('href') +
-      '?subject=' + encodeURIComponent('应聘：' + a.getAttribute('data-role'));
+      '?subject=' + encodeURIComponent("Applying for: " + a.getAttribute('data-role'));
   }
 
   /* ---------- 4. 加入我们：对接表单 ---------- */
@@ -143,7 +143,7 @@
     }
     function relation() {
       var picked = joinForm.querySelector('input[name="relation"]:checked');
-      return picked ? picked.value : '其他';
+      return picked ? picked.value : "Other";
     }
 
     /* 结果区：成功、失败、以及没配后端时的复制方案都用它 */
@@ -161,18 +161,18 @@
     function showError(msg) {
       var box = panel();
       box.className = 'join-result is-error';
-      box.innerHTML = '<h3>没有提交成功</h3><p></p>';
+      box.innerHTML = "<h3>Could not submit</h3><p></p>";
       box.querySelector('p').textContent =
-        msg + '　你也可以直接写信到 hello@earthory.com。';
+        msg + " You can also write to us directly at hello@earthory.com.";
     }
 
     function showDone() {
       var box = panel();
       box.className = 'join-result is-done';
       box.innerHTML =
-        '<h3>收到了</h3>' +
-        '<p>我们会尽快与你联系。想补充材料的话，直接写信到 ' +
-        '<a href="mailto:hello@earthory.com">hello@earthory.com</a> 即可。</p>';
+        "<h3>Got it</h3>" +
+        "<p>We will get back to you shortly. To add anything, write to " +
+        "<a href=\"mailto:hello@earthory.com\">hello@earthory.com</a>.</p>";
     }
 
     /* 没配后端时的退路：把内容整理好让对方自己复制。
@@ -181,34 +181,34 @@
        渠道页丢掉半封信比没有表单还糟，所以改成显式复制。 */
     function showCopy() {
       var text = [
-        '关系类型：' + relation(), '',
-        '姓名：' + (field('name') || '（未填）'),
-        '公司 / 机构：' + (field('org') || '（未填）'),
-        '国家 / 地区：' + (field('region') || '（未填）'),
-        '电子邮箱：' + (field('email') || '（未填）'),
-        '主页 / LinkedIn：' + (field('link') || '（未填）'), '',
-        '── 能为 Earthory 带来什么 ──', field('bring') || '（未填）', '',
-        '── 希望一起完成什么 ──', field('goal') || '（未填）', '',
-        '── 相关案例、作品或资源 ──', field('work') || '（未填）'
+        "Relationship: " + relation(), '',
+        "Name: " + (field('name') || "(not provided)"),
+        "Company / organisation: " + (field('org') || "(not provided)"),
+        "Country / region: " + (field('region') || "(not provided)"),
+        "Email: " + (field('email') || "(not provided)"),
+        "Website / LinkedIn: " + (field('link') || "(not provided)"), '',
+        "── What you bring to Earthory ──", field('bring') || "(not provided)", '',
+        "── What you'd like to build together ──", field('goal') || "(not provided)", '',
+        "── Relevant work, cases or resources ──", field('work') || "(not provided)"
       ].join('\n');
 
       var box = panel();
       box.className = 'join-result';
       box.innerHTML =
-        '<h3>内容已整理好</h3>' +
-        '<p>请把下面的内容发到 <a href="mailto:hello@earthory.com">hello@earthory.com</a>。</p>' +
+        "<h3>Your message is ready</h3>" +
+        "<p>Please send the text below to <a href=\"mailto:hello@earthory.com\">hello@earthory.com</a>.</p>" +
         '<textarea readonly rows="12"></textarea>' +
         '<div class="join-result-actions">' +
-        '<button type="button" class="copy">复制内容</button>' +
-        '<a class="mailto" href="mailto:hello@earthory.com">打开邮件客户端</a>' +
+        "<button type=\"button\" class=\"copy\">Copy</button>" +
+        "<a class=\"mailto\" href=\"mailto:hello@earthory.com\">Open mail client</a>" +
         '</div>';
       box.querySelector('textarea').value = text;
       box.querySelector('.copy').addEventListener('click', function () {
         var ta = box.querySelector('textarea');
         var btn = this;
         function ok() {
-          btn.textContent = '已复制';
-          setTimeout(function () { btn.textContent = '复制内容'; }, 2200);
+          btn.textContent = "Copied";
+          setTimeout(function () { btn.textContent = "Copy"; }, 2200);
         }
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(ta.value).then(ok, function () { ta.select(); });
@@ -227,7 +227,7 @@
 
       var btn = joinForm.querySelector('button[type="submit"]');
       var label = btn ? btn.textContent : '';
-      if (btn) { btn.disabled = true; btn.textContent = '提交中…'; }
+      if (btn) { btn.disabled = true; btn.textContent = "Submitting…"; }
 
       fetch(JOIN_API, {
         method: 'POST',
@@ -253,10 +253,10 @@
           showDone();
           joinForm.reset();
         } else {
-          showError((r.data && r.data.error) || '服务暂时没有响应。');
+          showError((r.data && r.data.error) || "The service is not responding right now.");
         }
       }).catch(function () {
-        showError('网络没有连上。');
+        showError("No network connection.");
       }).then(function () {
         if (btn) { btn.disabled = false; btn.textContent = label; }
       });
@@ -404,8 +404,8 @@
           priceHtml = '<div class="pr-price"><b>' + money(per) + '</b><span>/ month</span></div>'
             + '<div class="pr-price-sub">'
             + (cycle === 'yearly'
-                ? '年付 ' + money(yearlyTotal(p.monthly_price)) + ' / 年'
-                : '按月计费，随时可停')
+                ? "Billed annually " + money(yearlyTotal(p.monthly_price)) + " / year"
+                : "Billed monthly, cancel anytime")
             + '</div>';
         }
 
@@ -432,7 +432,7 @@
           + '<div class="pr-scenetags">' + scenes + '</div>'
           + '<button type="button" class="pr-cta' + (p.cta_type === 'quote' ? ' is-quote' : '')
           + '" data-sales-plan="' + esc(p.plan_id) + '">' + esc(p.cta) + ARROW + '</button>'
-          + '<details class="pr-feats"><summary>See all features<i>全部功能</i></summary>'
+          + "<details class=\"pr-feats\"><summary>See all features<i></i></summary>"
           + '<ul>' + feats + '</ul></details>';
 
         pricingRoot.appendChild(card);
@@ -470,17 +470,17 @@
       var c = CFG.configurator;
 
       form.innerHTML =
-        '<label class="pr-ctl"><span>Scene<i>使用场景</i></span><select id="pr-scene">'
+        "<label class=\"pr-ctl\"><span>Scene<i></i></span><select id=\"pr-scene\">"
         + CFG.scenes.map(function (s) {
             return '<option value="' + s.id + '">' + esc(s.name) + ' · ' + esc(s.zh) + '</option>';
           }).join('')
         + '</select></label>'
-        + control('Storage', '储存容量', 'pr-gb', opts(c.storage, 'gb', 3), false)
-        + control('Original Content Retention', '原始内容保存周期', 'pr-days', opts(c.original_retention, 'days', 3), false)
-        + control('AI Memory Retention', 'AI 记忆保存周期', 'pr-years', opts(c.ai_memory, 'years', 2), false)
-        + control('Devices', '设备数量', 'pr-dev', '', true, 10, 9999)
-        + control('Users', '用户数量', 'pr-usr', '', true, 10, 9999)
-        + control('AI Processing', 'AI 处理量', 'pr-tier', opts(c.ai_processing, 'tier', 0), false);
+        + control('Storage', "Storage", 'pr-gb', opts(c.storage, 'gb', 3), false)
+        + control('Original Content Retention', "Original content retention", 'pr-days', opts(c.original_retention, 'days', 3), false)
+        + control('AI Memory Retention', "AI Memory retention", 'pr-years', opts(c.ai_memory, 'years', 2), false)
+        + control('Devices', "Devices", 'pr-dev', '', true, 10, 9999)
+        + control('Users', "Users", 'pr-usr', '', true, 10, 9999)
+        + control('AI Processing', "AI processing", 'pr-tier', opts(c.ai_processing, 'tier', 0), false);
 
       var sceneSel = form.querySelector('#pr-scene');
       if (sceneSel) sceneSel.value = scene === 'enterprise' ? 'enterprise' : scene;
@@ -521,12 +521,12 @@
       CFG.scenes.forEach(function (s) { if (s.id === cfg.scene) sceneName = s.name; });
 
       var rows = [
-        ['Storage', '储存容量', labelFor(c.storage, 'gb', cfg.gb)],
-        ['Original Content', '原始内容', labelFor(c.original_retention, 'days', cfg.days)],
-        ['AI Memory', 'AI 记忆', labelFor(c.ai_memory, 'years', cfg.years)],
-        ['Devices', '设备', cfg.devices == null ? 'Custom' : String(cfg.devices)],
-        ['Users', '用户', cfg.users == null ? 'Custom' : String(cfg.users)],
-        ['AI Processing', 'AI 处理量', labelFor(c.ai_processing, 'tier', cfg.tier)]
+        ['Storage', "Storage", labelFor(c.storage, 'gb', cfg.gb)],
+        ['Original Content', "Original content", labelFor(c.original_retention, 'days', cfg.days)],
+        ['AI Memory', "AI Memory", labelFor(c.ai_memory, 'years', cfg.years)],
+        ['Devices', "Devices", cfg.devices == null ? 'Custom' : String(cfg.devices)],
+        ['Users', "Users", cfg.users == null ? 'Custom' : String(cfg.users)],
+        ['AI Processing', "AI processing", labelFor(c.ai_processing, 'tier', cfg.tier)]
       ].map(function (r) {
         return '<div><span>' + esc(r[0]) + '<i>' + esc(r[1]) + '</i></span><b>' + esc(r[2]) + '</b></div>';
       }).join('');
@@ -534,13 +534,13 @@
       var priceBlock, cta;
       if (per == null) {
         priceBlock = '<div class="pr-quote-price is-custom"><b>Custom</b>'
-          + '<span>这套配置需要单独报价</span></div>';
+          + "<span>This configuration needs a custom quote</span></div>";
         cta = '<button type="button" class="primary" data-sales-build="1">Request Quote</button>';
       } else {
         priceBlock = '<div class="pr-quote-price"><b>' + money(per) + '</b><span>/ month</span>'
           + (cycle === 'yearly'
-              ? '<em>年付 ' + money(yearlyTotal(raw)) + ' / 年</em>'
-              : '<em>按月计费</em>')
+              ? "<em>Billed annually " + money(yearlyTotal(raw)) + " / year</em>"
+              : "<em>Billed monthly</em>")
           + '</div>';
         cta = '<button type="button" class="primary" data-sales-build="1">Continue</button>';
       }
@@ -549,7 +549,7 @@
         '<div class="pr-quote-head"><span class="eyebrow">YOUR PLAN</span>'
         + '<h3>' + esc(sceneName) + '</h3></div>'
         + '<div class="pr-quote-rows">' + rows + '</div>'
-        + '<div class="pr-quote-label">Estimated Monthly Price<i>预估月费</i></div>'
+        + "<div class=\"pr-quote-label\">Estimated Monthly Price<i></i></div>"
         + priceBlock + cta
         + '<p class="pr-quote-note">' + esc(CFG.disclaimer_zh) + '</p>';
 
@@ -566,11 +566,11 @@
       var act = bar.querySelector('.pr-sticky-cta');
       if (per == null) {
         b.textContent = 'Custom';
-        s.textContent = sceneName + ' · 按需报价';
+        s.textContent = sceneName + " · custom quote";
         if (act) act.textContent = 'Request Quote';
       } else {
         b.textContent = money(per) + ' / month';
-        s.textContent = sceneName + (cycle === 'yearly' ? ' · 年付' : ' · 月付');
+        s.textContent = sceneName + (cycle === 'yearly' ? " · yearly" : " · monthly");
         if (act) act.textContent = 'Continue';
       }
     }
@@ -605,7 +605,7 @@
           + '</div>' + (extra || '') + '</article>';
       }
 
-      var endings = '<div class="pr-endings"><b>到期后</b>'
+      var endings = "<div class=\"pr-endings\"><b>On expiry</b>"
         + t.original.endings.map(function (e) { return '<span>' + esc(e) + '</span>'; }).join('')
         + '</div>';
 
@@ -622,8 +622,8 @@
           + '<h3>' + esc(g.title) + '<i>' + esc(g.title_zh) + '</i></h3>'
           + '<ul>' + g.items.map(function (it) {
               var right = it.from == null
-                ? (it.note ? esc(it.note) : '按需')
-                : (it.from === 0 ? '已含' : 'From ' + money(it.from));
+                ? (it.note ? esc(it.note) : "On request")
+                : (it.from === 0 ? "Included" : 'From ' + money(it.from));
               return '<li><span>' + esc(it.label) + '</span><b>' + right + '</b></li>';
             }).join('') + '</ul></article>';
       }).join('');
@@ -682,13 +682,13 @@
     function ctxSummary(ctx) {
       var cc = CFG.configurator;
       var rows = [
-        ['套餐', ctx.planName || ctx.plan],
-        ['储存容量', ctx.storage_gb == null ? '待定' : labelFor(cc.storage, 'gb', ctx.storage_gb)],
-        ['原始内容保存', ctx.retention_days == null ? '待定' : labelFor(cc.original_retention, 'days', ctx.retention_days)],
-        ['AI 记忆保存', ctx.memory_years == null ? '待定' : labelFor(cc.ai_memory, 'years', ctx.memory_years)],
-        ['设备 / 用户', (ctx.devices == null ? '待定' : ctx.devices) + ' / ' + (ctx.seats == null ? '待定' : ctx.seats)],
-        ['计费', ctx.billing_cycle === 'yearly' ? '年付' : '月付'],
-        ['预估月费', ctx.est_price == null ? '按需报价' : money(ctx.est_price)]
+        ["Plan", ctx.planName || ctx.plan],
+        ["Storage", ctx.storage_gb == null ? "TBD" : labelFor(cc.storage, 'gb', ctx.storage_gb)],
+        ["Original content", ctx.retention_days == null ? "TBD" : labelFor(cc.original_retention, 'days', ctx.retention_days)],
+        ["AI Memory", ctx.memory_years == null ? "TBD" : labelFor(cc.ai_memory, 'years', ctx.memory_years)],
+        ["Devices / Users", (ctx.devices == null ? "TBD" : ctx.devices) + ' / ' + (ctx.seats == null ? "TBD" : ctx.seats)],
+        ["Billing", ctx.billing_cycle === 'yearly' ? "Yearly" : "Monthly"],
+        ["Estimated monthly", ctx.est_price == null ? "Custom quote" : money(ctx.est_price)]
       ];
       return rows.map(function (r) {
         return '<div><span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>';
@@ -707,32 +707,32 @@
       m.innerHTML =
         '<div class="eo-sales-back" data-sales-close="1"></div>'
         + '<div class="eo-sales-panel">'
-        + '<button type="button" class="eo-sales-x" data-sales-close="1" aria-label="关闭">'
+        + "<button type=\"button\" class=\"eo-sales-x\" data-sales-close=\"1\" aria-label=\"Close\">"
         + '<svg class="ic" viewBox="0 0 256 256"><use href="#eo-x"/></svg></button>'
         + '<span class="eyebrow">TALK TO SALES</span>'
-        + '<h2 id="eo-sales-h">聊聊你的现场</h2>'
-        + '<p class="eo-sales-lead">你刚才配的东西会一起发过来，不用再描述一遍。'
-        + '我们看完给一份能落地的配置和报价，不合适会直说。</p>'
+        + "<h2 id=\"eo-sales-h\">Tell us about your site</h2>"
+        + "<p class=\"eo-sales-lead\">The configuration you just built comes with it, so there is no need to describe it again. "
+        + "We will come back with a workable configuration and a quote, and say so plainly if it is not a fit.</p>"
         + '<div class="eo-sales-ctx"></div>'
         /* 只问四件事。配置那一块已经把「要什么」说清楚了，
            这里再摆一屏公司职位地区，只会让人关掉窗口。 */
         + '<form class="eo-sales-form" novalidate>'
         + '<div class="field-grid">'
-        + '<label class="field">名字 *<input name="name" required autocomplete="name"></label>'
-        + '<label class="field">邮箱 *<input name="email" type="email" required autocomplete="email"></label>'
+        + "<label class=\"field\">Name *<input name=\"name\" required autocomplete=\"name\"></label>"
+        + "<label class=\"field\">Email *<input name=\"email\" type=\"email\" required autocomplete=\"email\"></label>"
         + '</div>'
-        + '<label class="field stack">联系方式'
-        + '<input name="phone" autocomplete="tel" placeholder="电话 / WhatsApp / 微信，留一个方便的">'
+        + "<label class=\"field stack\">How to reach you"
+        + "<input name=\"phone\" autocomplete=\"tel\" placeholder=\"Phone / WhatsApp / WeChat — whichever suits you\">"
         + '</label>'
-        + '<label class="field stack">用途'
-        + '<textarea name="message" rows="4" placeholder="想用在什么场景、大概多大范围。一两句就行。"></textarea></label>'
+        + "<label class=\"field stack\">What you need it for"
+        + "<textarea name=\"message\" rows=\"4\" placeholder=\"What setting, roughly what scale. A sentence or two is enough.\"></textarea></label>"
         /* 蜜罐：移出视口而不是 display:none——有些机器人会跳过被隐藏的字段 */
-        + '<div class="hp" aria-hidden="true"><label>公司网站'
+        + "<div class=\"hp\" aria-hidden=\"true\"><label>Company website"
         + '<input name="company_website" tabindex="-1" autocomplete="off"></label></div>'
         + '<label class="consent"><input type="checkbox" name="consent" required>'
-        + '<span>我同意 Earthory 保存并使用以上信息与我联系。相关说明见'
-        + '<a href="privacy.html">隐私与安全</a>。</span></label>'
-        + '<button type="submit" class="primary">发送</button>'
+        + "<span>I agree that Earthory may store and use the information above to contact me. See "
+        + "<a href=\"privacy.html\">Privacy &amp; Security</a>.</span></label>"
+        + "<button type=\"submit\" class=\"primary\">Send</button>"
         + '<div class="eo-sales-result" hidden></div>'
         + '</form></div>';
       document.body.appendChild(m);
@@ -778,12 +778,12 @@
           data[k] = n ? n.value.trim() : '';
         });
 
-      if (!data.name) { showSales(res, 'is-error', '还差一步', '请填一下名字。'); return; }
+      if (!data.name) { showSales(res, 'is-error', "One more thing", "Please tell us your name."); return; }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
-        showSales(res, 'is-error', '还差一步', '邮箱看起来不太对，我们没法回信。'); return;
+        showSales(res, 'is-error', "One more thing", "That email does not look right, so we would not be able to reply."); return;
       }
       if (!form.querySelector('[name="consent"]').checked) {
-        showSales(res, 'is-error', '还差一步', '需要先勾选同意，我们才能保存你的联系方式。'); return;
+        showSales(res, 'is-error', "One more thing", "Please tick the box so we can store your contact details."); return;
       }
 
       /* 配置快照跟着一起走，销售不用回头再问一遍 */
@@ -802,7 +802,7 @@
 
       var label = btn.textContent;
       btn.disabled = true;
-      btn.textContent = '正在发送…';
+      btn.textContent = "Sending…";
 
       fetch(SALES_API, {
         method: 'POST',
@@ -813,14 +813,14 @@
       }).then(function (r) {
         if (r.ok && r.body && r.body.ok) {
           form.hidden = true;
-          showSales(res, 'is-done', '收到了',
-            '我们会在一两个工作日内回你。急的话直接写信到 sales@earthory.com。');
+          showSales(res, 'is-done', "Got it",
+            "We will reply within a working day or two. If it is urgent, write to sales@earthory.com.");
         } else {
-          showSales(res, 'is-error', '没发出去',
-            (r.body && r.body.error) || '服务暂时没有响应，稍后再试一次。');
+          showSales(res, 'is-error', "Could not send",
+            (r.body && r.body.error) || "The service is not responding. Please try again shortly.");
         }
       }).catch(function () {
-        showSales(res, 'is-error', '没发出去', '网络没有连上。');
+        showSales(res, 'is-error', "Could not send", "No network connection.");
       }).then(function () {
         btn.disabled = false;
         btn.textContent = label;
@@ -914,10 +914,10 @@
       .catch(function (err) {
         /* file:// 打开时 fetch 会被浏览器挡掉，本地预览要起个 http 服务 */
         pricingRoot.innerHTML =
-          '<p class="pr-note">价格暂时读不出来（' + esc(err.message) + '）。'
-          + '本地预览请用 <code>python -m http.server</code> 起一个服务，'
-          + '直接双击 HTML 文件的话浏览器会拦掉配置文件的读取。<br>'
-          + '需要报价可以直接写信到 <a href="mailto:sales@earthory.com">sales@earthory.com</a>。</p>';
+          "<p class=\"pr-note\">Pricing could not be loaded (" + esc(err.message) + ")."
+          + "For local preview run <code>python -m http.server</code>, "
+          + "Opening the HTML file directly blocks the browser from reading the config.<br>"
+          + "For a quote, write to <a href=\"mailto:sales@earthory.com\">sales@earthory.com</a>.</p>";
       });
   }
 

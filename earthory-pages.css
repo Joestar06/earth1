@@ -117,7 +117,7 @@
 .people-stage{
   position:relative;min-height:590px;overflow:hidden;
   border-radius:28px 0 0 28px;display:grid;place-items:center;
-  background:url(assets/bike-father.png) center calc(44% + var(--eo-py,0px))/cover no-repeat
+  background:url(/assets/bike-father.png) center calc(44% + var(--eo-py,0px))/cover no-repeat
 }
 .people-stage .concept-tag{bottom:24px}
 
@@ -188,8 +188,8 @@
 .photo-band .eyebrow{color:#a9dcc7}
 .photo-band h2{font:500 clamp(30px,3.2vw,46px)/1.28 var(--serif);letter-spacing:-.03em;margin:0 0 16px}
 .photo-band p{color:#dbe7e2;line-height:1.8;margin:0;max-width:560px}
-.band-people{background-image:url(assets/bike-father.png)}
-.band-device{background-image:url(assets/earthory-home-device.png)}
+.band-people{background-image:url(/assets/bike-father.png)}
+.band-device{background-image:url(/assets/earthory-home-device.png)}
 
 .photo-duo{max-width:1180px;margin:auto;display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .photo-duo figure{position:relative;overflow:hidden;border-radius:22px;margin:0}
@@ -479,7 +479,7 @@ footer .brand-mark{height:24px}
 .system-orb{
   min-height:0;width:100%;aspect-ratio:16/9;border-radius:28px;
   border:1px solid var(--line);
-  background:url(assets/one-exploded-sphere.jpg) center/contain no-repeat var(--ivory)
+  background:url(/assets/one-exploded-sphere.jpg) center/contain no-repeat var(--ivory)
 }
 .system-list{max-width:none;grid-template-columns:repeat(2,1fr);gap:14px}
 
@@ -1376,3 +1376,51 @@ button.pr-cta.is-quote{border:1px solid var(--line)}
   .eo-sales-form .field-grid{grid-template-columns:1fr}
   .eo-sales-form button[type="submit"]{justify-self:stretch;text-align:center}
 }
+
+/* ============================================================
+   语言切换
+
+   英文站在根目录，中文站在 /zh/ 下。按钮由 earthory-motion.js
+   的 8.10 节在运行时插入（首页/硬件页/App 页的导航由 earthory.js
+   渲染，改不了源码，只能这样补）。
+
+   按钮上写的是目标语言的自称：英文页写「中文」，中文页写 EN。
+   ============================================================ */
+.nav-lang{
+  display:inline-flex;align-items:center;gap:2px;
+  padding:3px;border:1px solid var(--line);border-radius:999px;background:#fff
+}
+.nav-lang > a,
+.nav-lang > span{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-width:34px;height:26px;padding:0 9px;border-radius:999px;
+  font-size:12px;font-weight:600;letter-spacing:.02em;white-space:nowrap;
+  transition:.2s ease
+}
+/* 当前语言：填色。用户一眼看得出自己在哪一边，
+   也看得出还有另一种语言可选——只显示目标语言的话，
+   不点开根本不知道站点是双语的。 */
+.nav-lang > span[aria-current]{background:var(--sage);color:#fff}
+.nav-lang > a{color:var(--muted)}
+.nav-lang > a:hover{background:var(--pearl);color:var(--sage)}
+.nav-lang > a:focus-visible{outline:2px solid var(--sage);outline-offset:2px}
+
+@media(max-width:900px){
+  /* 手机上顶栏只留 logo、下载和汉堡，语言切换挪进菜单里，
+     否则四个元素挤在一行谁都点不准 */
+  .nav-lang{display:none}
+}
+
+/* 菜单里的语言切换：同样两格并排，撑满一行 */
+.eo-mnav-list .eo-mnav-lang{
+  display:flex;gap:4px;margin-top:16px;padding:4px;
+  border:1px solid var(--line);border-radius:999px
+}
+.eo-mnav-list .eo-mnav-lang > a,
+.eo-mnav-list .eo-mnav-lang > span{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  min-height:44px;border-radius:999px;border-bottom:0;
+  font:600 15px var(--sans);color:var(--muted);opacity:1;transform:none
+}
+.eo-mnav-list .eo-mnav-lang > span[aria-current]{background:var(--sage);color:#fff}
+
