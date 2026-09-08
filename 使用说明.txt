@@ -216,6 +216,46 @@ stopPropagation()，面板自己的关闭逻辑收不到事件，所以在那个
 earthory.css 是压缩过的构建产物不要动，改就改 earthory-pages.css。
 
 ────────────────────────────────
+部署（Vercel）
+────────────────────────────────
+配置在 vercel.json。三件事必须是现在这样，改了会出问题：
+
+  buildCommand    一个 echo 空跑
+  outputDirectory "."
+  cleanUrls       false
+
+为什么要显式关掉构建：
+Vercel 看到 package.json 里有 build 脚本，就会当成前端框架项目去跑
+构建，然后找 public/ 输出目录。但我们的 npm run build 是**就地改文件**
+的生成器，不产出任何目录，于是报
+    No Output Directory named "public" found
+显式写死这三项，它就不猜了，直接把仓库根目录当成静态站发出去。
+
+**cleanUrls 一定要保持 false。**
+开了之后 /how.html 会被 301 到 /how，而所有 canonical、sitemap、
+hreflang 里写的都是带 .html 的地址——那会变成全站 canonical 和实际
+URL 对不上，比没有 canonical 更糟。
+
+生成的文件都已提交进仓库，所以线上不需要构建。
+**代价是：改了源文件必须先在本地跑 npm run build 再提交**，
+否则线上是旧内容。提交前跑一次 npm run check 能挡住大部分疏漏。
+
+.vercelignore 里排掉了 tools/、supabase/、package.json 和使用说明。
+robots.txt 虽然 Disallow 了 tools 和 supabase，但那只是请爬虫别抓，
+文件本身照样能被直接访问，不发上去更干净。
+
+响应头：HTML 和配置文件不缓存（改了要立刻生效），assets 和 downloads
+长缓存一年（换图会换文件名），JS/CSS 一小时（文件名没有内容哈希，
+改了是同名覆盖，不能长缓存）。
+
+上线后还要在 Vercel 后台配：
+  · 绑定 earthory.com 和 www.earthory.com
+  · 裸域 301 到 www（或反过来，选一个），不做的话 Google 会当成两个站
+  · ALLOWED_ORIGINS 已经是 https://earthory.com,https://www.earthory.com，
+    如果最终用的是别的域名（比如先用 vercel.app 试），
+    要在 Supabase 那边把新域名加进去，否则两个表单都会被 403 挡掉
+
+────────────────────────────────
 双语站：英文在根，中文在 /zh/
 ────────────────────────────────
     /            英文（主语言，x-default）

@@ -1,0 +1,19 @@
+# 这些不需要发到线上：源码工具和后端定义，
+# 发上去只是让站点变大，也多一份不必要的公开面。
+# robots.txt 里虽然已经 Disallow 了 /tools/ 和 /supabase/，
+# 但那只是请爬虫别抓，文件本身照样能被直接访问。
+
+node_modules/
+tools/
+supabase/
+
+# 维护文档，给你们自己看的
+使用说明.txt
+
+# npm 元数据。构建已关掉，线上用不到，
+# 留着还会让 Vercel 继续把这个项目当成框架项目去猜。
+package.json
+package-lock.json
+
+.git/
+.gitignore
